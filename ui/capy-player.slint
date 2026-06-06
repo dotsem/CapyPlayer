@@ -1,0 +1,66 @@
+
+import { MediaData } from "models/media-data.slint";
+
+export component CapyPlayer {
+    in property <MediaData> data;
+    in-out property <float> position_secs;
+    callback play-pause();
+    callback next();
+    callback prev();
+    callback seek(float); // between 0 & 1
+    
+    
+    // Background: Blurred Art or dark fallback
+    Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #1a1a1a; // Fallback dark background
+    
+        Image {
+            width: 100%;
+            height: 100%;
+            source: data.blurred_art;
+            image-fit: cover;
+            visible: data.blurred_art.width > 0;
+        }
+
+        // Darken overlay for better contrast
+        Rectangle {
+            background: #000000;
+            opacity: 0.3;
+        }
+    }
+
+    HorizontalLayout {
+        padding: 0;
+        spacing: 0;
+
+        // --- Album Art Section ---
+        Rectangle {
+            width: 48px;
+            height: 48px;
+            clip: true;
+            border-radius: 8px;
+            background: #333333; // Placeholder background when no art
+            
+            Image {
+                width: 100%;
+                height: 100%;
+                source: data.album_art;
+                image-fit: cover;
+            }
+
+            // Music note icon as placeholder when no art
+            Text {
+                visible: data.album_art.width == 0;
+                text: "♪";
+                font-size: 24px;
+                color: #888888;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+}

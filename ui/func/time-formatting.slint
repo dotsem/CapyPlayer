@@ -1,0 +1,16 @@
+
+
+export global TimeFormatting {
+    public pure function format-time(seconds: float) -> string {
+        if (seconds < 0) {
+            return "0:00";
+        }
+        let m = floor(seconds / 60);
+        let s = floor(seconds - m * 60);
+        return time-pad(m) + ":" + time-pad(s);
+    }
+
+    public pure function time-pad(time-unit: int) -> string {
+        return time-unit < 10 ? "0" + time-unit : time-unit;
+    }
+}
