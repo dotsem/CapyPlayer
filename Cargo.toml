@@ -6,7 +6,8 @@ edition = "2024"
 
 [dependencies]
 slint = { version = "1.17.1", features = ["live-preview", "renderer-skia"] }
-spell-framework = "1.0.6"
+# spell-framework = "1.0.6"
+spell-framework = { path = "../Spell/spell-framework" }
 capy-player = { path = "crates/capy-player" }
 env_logger = "0.11.3"
 log = "0.4.21"
