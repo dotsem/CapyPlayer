@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::RwLock;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use tokio::sync::mpsc;
 
 /// Data sent to UI for display
@@ -50,6 +50,33 @@ pub fn get_command_sender() -> Option<&'static mpsc::Sender<PlayerCommand>> {
     COMMAND_SENDER.get()
 }
 
+static ALBUM_SIZE: AtomicU32 = AtomicU32::new(256);
+static BLUR_ALBUM_SIZE: AtomicU32 = AtomicU32::new(128);
+
+/// Set album art size
+/// Album art is assumed to be a square.
+pub fn set_album_size(size: u32) {
+    ALBUM_SIZE.store(size, Ordering::Relaxed)
+}
+
+/// Get album art size
+/// Album art is assumed to be a square.
+pub fn get_album_size() -> u32 {
+    ALBUM_SIZE.load(Ordering::Relaxed)
+}
+
+/// Set blurred album art size
+/// Blurred album art is assumed to be a square.
+pub fn set_blur_album_size(size: u32) {
+    BLUR_ALBUM_SIZE.store(size, Ordering::Relaxed)
+}
+
+/// Get blurred album art size
+/// Blurred album art is assumed to be a square.
+pub fn get_blur_album_size() -> u32 {
+    BLUR_ALBUM_SIZE.load(Ordering::Relaxed)
+}
+
 /// Send a command to the MPRIS client
 pub fn send_command(cmd: PlayerCommand) {
     if let Some(sender) = COMMAND_SENDER.get() {
@@ -63,7 +90,10 @@ pub fn start() {
     std::thread::Builder::new()
         .name("mpris-monitor".to_string())
         .spawn(|| {
-            let rt = match tokio::runtime::Runtime::new() {
+            let rt = match tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+            {
                 Ok(rt) => rt,
                 Err(e) => {
                     error!("Failed to create tokio runtime for MPRIS: {}", e);
@@ -242,7 +272,11 @@ fn process_album_art(url: &str, cache_dir: &Path) -> Option<(String, String)> {
 
     // Check if already cached on disk
     if original_path.exists() && blur_path.exists() {
-        info!("Album art cache hit on disk: {} (took {:?})", url, start_time.elapsed());
+        info!(
+            "Album art cache hit on disk: {} (took {:?})",
+            url,
+            start_time.elapsed()
+        );
         return Some((
             original_path.to_string_lossy().to_string(),
             blur_path.to_string_lossy().to_string(),
@@ -278,20 +312,32 @@ fn process_album_art(url: &str, cache_dir: &Path) -> Option<(String, String)> {
         warn!("Unsupported album art URL scheme: {}", url);
         return None;
     };
-    info!("Downloaded/read album art bytes in {:?}", download_start.elapsed());
+    info!(
+        "Downloaded/read album art bytes in {:?}",
+        download_start.elapsed()
+    );
 
     let process_start = std::time::Instant::now();
     let img = image::load_from_memory(&img_data).ok()?;
 
-    let resized = img.resize_to_fill(256, 256, FilterType::CatmullRom);
+    let album_size = get_album_size();
+    let blur_album_size = get_blur_album_size();
+
+    let resized = img.resize_to_fill(album_size, album_size, FilterType::CatmullRom);
     resized.save(&original_path).ok()?;
 
-    let blur_base = img.resize_to_fill(128, 128, FilterType::Triangle);
+    let blur_base = img.resize_to_fill(blur_album_size, blur_album_size, FilterType::Triangle);
     let blurred = blur_base.blur(4.0);
     blurred.save(&blur_path).ok()?;
 
-    info!("Processed, blurred and saved album art in {:?}", process_start.elapsed());
-    info!("Total album art processing time: {:?}", start_time.elapsed());
+    info!(
+        "Processed, blurred and saved album art in {:?}",
+        process_start.elapsed()
+    );
+    info!(
+        "Total album art processing time: {:?}",
+        start_time.elapsed()
+    );
 
     Some((
         original_path.to_string_lossy().to_string(),
