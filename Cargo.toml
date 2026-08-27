@@ -5,8 +5,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-slint = { version = "1.14.1", features = ["live-preview", "renderer-skia"] }
-spell-framework = "1.0.3"
+slint = { version = "1.17.1", features = ["live-preview", "renderer-skia"] }
+spell-framework = "1.0.6"
 capy-player = { path = "crates/capy-player" }
 env_logger = "0.11.3"
 log = "0.4.21"
@@ -15,7 +15,7 @@ paste = "1.0"
 toml = "0.8"
 
 [build-dependencies]
-slint-build = "1.14.1"
+slint-build = "1.17.1"
 
 [patch.crates-io]
 slint = { git = "https://github.com/slint-ui/slint" }
