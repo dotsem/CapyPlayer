@@ -3,17 +3,16 @@ use spell_framework::{
     self, cast_spell,
     layer_properties::{LayerAnchor, LayerType, WindowConf},
 };
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    error::Error,
-    rc::Rc,
-    sync::mpsc,
-    time::Instant,
-};
+use std::{cell::RefCell, error::Error, rc::Rc, sync::mpsc, time::Instant};
 
 slint::include_modules!();
 spell_framework::generate_widgets![CapySpellPlayer];
+
+mod animation;
+mod config;
+
+const WINDOW_WIDTH: u32 = 200;
+const WINDOW_HEIGHT: u32 = 200;
 
 #[derive(Default, Clone)]
 struct ServerState {
@@ -49,37 +48,49 @@ fn hash_string(s: &str) -> u64 {
     hasher.finish()
 }
 
+thread_local! {
+    static ART_CACHE: RefCell<(String, slint::Image)> = RefCell::new((String::new(), slint::Image::default()));
+    static BLUR_CACHE: RefCell<(String, slint::Image)> = RefCell::new((String::new(), slint::Image::default()));
+}
+
 fn load_image_cached(path: &str, has_media: bool, is_blur: bool) -> slint::Image {
     if !has_media || path.is_empty() {
         return slint::Image::default();
     }
-    
-    thread_local! {
-        static CACHE: RefCell<HashMap<String, slint::Image>> = RefCell::new(HashMap::new());
-    }
 
-    CACHE.with(|cache| {
-        let mut cache = cache.borrow_mut();
-        if let Some(img) = cache.get(path) {
+    let slot = if is_blur { &BLUR_CACHE } else { &ART_CACHE };
+
+    slot.with(|cell| {
+        let cached = cell.borrow();
+        if cached.0 == path {
             log::debug!("Image cache hit for: {} (is_blur={})", path, is_blur);
-            img.clone()
-        } else {
-            let start = std::time::Instant::now();
-            log::info!("Image cache miss. Loading from disk: {} (is_blur={})", path, is_blur);
-            let img = slint::Image::load_from_path(std::path::Path::new(path)).unwrap_or_default();
-            log::info!("Loaded image in {:?}", start.elapsed());
-            cache.insert(path.to_string(), img.clone());
-            img
+            return cached.1.clone();
         }
+        drop(cached);
+
+        let start = std::time::Instant::now();
+        log::info!(
+            "Image cache miss. Loading from disk: {} (is_blur={})",
+            path,
+            is_blur
+        );
+        let img = slint::Image::load_from_path(std::path::Path::new(path)).unwrap_or_default();
+        log::info!("Loaded image in {:?}", start.elapsed());
+
+        // replace slot — old image is dropped here, freeing decoded pixel data
+        *cell.borrow_mut() = (path.to_string(), img.clone());
+        img
     })
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    env_logger::init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     log::info!("Initializing capy-spell-player...");
+    log::info!("Slint backend: {:?}", std::env::var("SLINT_BACKEND"));
+
     let window_conf = WindowConf::builder()
-        .width(376_u32)
-        .height(576_u32)
+        .width(WINDOW_WIDTH)
+        .height(WINDOW_HEIGHT)
         .anchor_1(LayerAnchor::BOTTOM)
         .anchor_2(LayerAnchor::RIGHT)
         .margins(5, 0, 0, 10)
@@ -88,6 +99,25 @@ fn main() -> Result<(), Box<dyn Error>> {
         .unwrap();
 
     let ui = CapySpellPlayerSpell::invoke_spell("capy-player", window_conf);
+
+    ui.set_skin(config::get_skin().into());
+
+    let skin_cfg = ui.get_current_skin();
+    let scale = config::get_scale();
+    let width = skin_cfg.width * scale;
+    let height = skin_cfg.height * scale;
+    log::info!(
+        "Skin: {}, Scale: {}, Width: {}, Height: {}",
+        config::get_skin(),
+        scale,
+        width,
+        height
+    );
+    ui.window().set_size(slint::LogicalSize::new(width, height));
+
+    let max_dim = (width.max(height)).round() as u32;
+    capy_player::mpris::set_album_size(max_dim);
+    capy_player::mpris::set_blur_album_size(max_dim);
 
     capy_player::mpris::start();
 
@@ -103,16 +133,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let interp_state = Rc::new(RefCell::new(InterpolationState::default()));
     let last_rendered_position = Rc::new(RefCell::new(0.0f32));
+    let playback_motion = Rc::new(RefCell::new(animation::PlaybackMotion::default()));
 
     let ui_weak_timer = ui.as_weak();
     let interp_clone = interp_state.clone();
     let last_pos_clone = last_rendered_position.clone();
     let server_state_for_timer = server_state.clone();
+    let motion_clone = playback_motion.clone();
 
     let timer = slint::Timer::default();
     timer.start(
         slint::TimerMode::Repeated,
-        std::time::Duration::from_millis(50),
+        std::time::Duration::from_millis(25),
         move || {
             if let Some(ui) = ui_weak_timer.upgrade() {
                 // drain channel to consume all new background events
@@ -122,9 +154,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 if let Some(data) = latest_data {
-                    log::info!("Processing update for: title='{}', artist='{}'", data.title, data.artist);
+                    log::info!(
+                        "Processing update for: title='{}', artist='{}'",
+                        data.title,
+                        data.artist
+                    );
                     let title_hash = hash_string(data.title.as_str());
-                    
+
                     {
                         let mut state = server_state_for_timer.borrow_mut();
                         state.position_secs = data.position_secs;
@@ -135,8 +171,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         state.has_media = data.has_media;
                     }
 
-                    let album_art = load_image_cached(data.album_art_path.as_str(), data.has_media, false);
-                    let blurred_art = load_image_cached(data.blurred_art_path.as_str(), data.has_media, true);
+                    let album_art =
+                        load_image_cached(data.album_art_path.as_str(), data.has_media, false);
+                    let blurred_art =
+                        load_image_cached(data.blurred_art_path.as_str(), data.has_media, true);
 
                     let media_data = MediaData {
                         title: SharedString::from(data.title),
@@ -155,6 +193,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 let server = server_state_for_timer.borrow().clone();
+                let motion = motion_clone
+                    .borrow_mut()
+                    .update(server.has_media && server.is_playing);
+                ui.set_vinyl_angle(motion.angle_deg);
+                ui.set_animation_phase(motion.phase);
+
                 if !server.has_media {
                     return;
                 }

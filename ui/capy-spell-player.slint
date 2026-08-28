@@ -1,28 +1,31 @@
 import { VerticalBox, Button } from "std-widgets.slint";
 import { CapyPlayer } from "capy-player.slint";
 import { MediaData } from "models/media-data.slint";
+import { SkinRegistry, SkinConfig } from "skins/skin_registry.slint";
+import { VinylPlayer } from "skins/vinyl/vinyl.slint";
 
+export { SkinRegistry, SkinConfig }
 export component CapySpellPlayer inherits Window {
     in property <MediaData> media_data;
     in-out property <float> position_secs;
+    in-out property <float> vinyl_angle: 0.0;
+    in-out property <float> animation_phase: 0.0;
+
+    in property <string> skin: "Vinyl";
+
+    out property <SkinConfig> current_skin: SkinRegistry.get_config(root.skin);
 
     callback play_pause();
     callback next();
     callback prev();
     callback seek(float);
 
-    width: 376px;
-    height: 576px;
+    width: root.current_skin.width;
+    height: root.current_skin.height;
+    background: transparent;
 
-    CapyPlayer {
-        width: 100%;
-        height: 100%;
-        data: root.media_data;
-        position_secs: root.position_secs;
-
-        play-pause => { root.play_pause(); }
-        next => { root.next(); }
-        prev => { root.prev(); }
-        seek(val) => { root.seek(val); }
+    VinylPlayer {
+        media_data: root.media_data;
+        vinyl_angle: root.vinyl_angle;
     }
 }
