@@ -14,7 +14,7 @@
     <radialGradient id="radialGradient4091" xlink:href="#linearGradient4523" gradientUnits="userSpaceOnUse" cy="322.76" cx="1129.6" gradientTransform="matrix(1.58 -.42384 .42336 1.5818 -505.75 239.62)" r="506.42"/>
     <mask id="vinyl-center-hole">
       <rect x="-2000" y="-2000" width="5000" height="5000" fill="white"/>
-      <circle cx="928.19" cy="16.163" r="89.08" fill="black"/>
+      <circle cx="928.19" cy="16.163" r="120" fill="black"/>
     </mask>
   </defs>
   <g id="layer1" transform="translate(-672.19 239.83)" mask="url(#vinyl-center-hole)">
