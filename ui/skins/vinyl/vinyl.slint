@@ -1,0 +1,106 @@
+
+
+import { MediaData } from "../../models/media-data.slint";
+import { Calc } from "../../func/calc.slint";
+
+
+component Vinyl {
+    in property <image> album_art;
+    in property <float> vinyl_angle: 0.0;
+
+    Image {
+        source: album_art;
+        width: 35%;
+        height: self.width;
+
+        x: root.width * 0.5 - self.width * 0.5;
+        y: root.height * 0.5 - self.height * 0.5;
+
+        transform-rotation: root.vinyl_angle * 1deg;
+    }
+
+    Image {
+        width: 100%;
+        height: self.width;
+
+        source: @image-url("../../assets/vinyl.svg");
+
+        transform-rotation: root.vinyl_angle * 1deg;
+    }
+}
+
+component Player {
+    Rectangle {
+        background: yellow;
+        width: 100%;
+        height: 100%;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+    }
+}
+
+component PlayerHead {
+    private property <angle> player-head-min: 80.0deg;
+    private property <angle> player-head-max: 115.0deg;
+    private property <angle> player-head-resting: 73deg;
+    in property <bool> is_playing;
+    in property <float> position_secs;
+    in property <float> length_secs;
+
+    private property <angle> head-angle: root.is-playing
+        ? Calc.linear-interpolation(root.position_secs, 0.0, root.length_secs, player-head-min / 1deg, player-head-max / 1deg) * 1deg
+        : player-head-resting;
+
+    animate head-angle {
+        duration: 400ms;
+        easing: ease-out;
+    }
+
+    Image {
+        source: @image-url("../../assets/vinyl-arm.svg");
+        height: 100%;
+        width: 100%;
+        image-fit: contain;
+        transform-rotation: head-angle;
+
+        transform-origin: {
+            x: self.width * (200.0 / 900.0),
+            y: self.height * 0.5,
+        };
+    }
+}
+
+export component VinylPlayer {
+    in property <MediaData> media_data;
+    in property <float> vinyl_angle: 0.0;
+
+    width: 100%;
+    height: 100%;
+
+    Player {
+        x: parent.width - self.width;
+        y: parent.height - self.height;
+
+        width: 80%;
+        height: 100%;
+    }
+
+    Vinyl {
+        x: 0;
+        y: 30px;
+        width: 90%;
+        height: self.width;
+        album_art: media_data.album-art;
+        vinyl_angle: root.vinyl_angle;
+    }
+
+    PlayerHead {
+        x: 210px;
+        y: -60px;
+        height: 50%;
+        width: self.height;
+        is_playing: root.media_data.is-playing;
+        position_secs: root.media_data.position-secs;
+        length_secs: root.media_data.length-secs;
+    }
+}
