@@ -1,0 +1,33 @@
+export struct SkinConfig {
+    width: length,
+    height: length,
+    border_radius: length,
+    transparent_background: bool,
+}
+
+export global SkinRegistry {
+    pure public function get_config(skin_name: string) -> SkinConfig {
+        if (skin_name.to_lowercase() == "vinyl") {
+            return {
+                width: 300px,
+                height: 420px,
+                border_radius: 0px,
+                transparent_background: true,
+            };
+        }
+        if (skin_name.to_lowercase() == "card") {
+            return {
+                width: 300px,
+                height: 60px,
+                border_radius: 10px,
+                transparent_background: false,
+            };
+        }
+        return {
+            width: 200px,
+            height: 200px,
+            border_radius: 0px,
+            transparent_background: false,
+        };
+    }
+}
