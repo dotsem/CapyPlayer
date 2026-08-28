@@ -1,0 +1,10 @@
+// Calc is short for calculator
+export global Calc {
+    public pure function linear-interpolation(val: float, in_min: float, in_max: float, out_min: float, out_max: float) -> float {
+        if (in_max == in_min) {
+            return out_min;
+        }
+        let t = Math.max(0.0, Math.min(1.0, (val - in_min) / (in_max - in_min)));
+        return out_min + t * (out_max - out_min);
+    }
+}
