@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="100%" height="100%">
+  <defs>
+    <!-- Metallic & Base Gradients -->
+    <linearGradient id="basePlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2E4E8" />
+      <stop offset="100%" stop-color="#C5C8D0" />
+    </linearGradient>
+
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#A5A9B2" />
+      <stop offset="50%" stop-color="#7B8089" />
+      <stop offset="100%" stop-color="#5B5F66" />
+    </linearGradient>
+
+    <linearGradient id="gimbalTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#E4E6EB" />
+      <stop offset="100%" stop-color="#B8BAC0" />
+    </linearGradient>
+
+    <linearGradient id="metalArm" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="25%" stop-color="#DDE0E6" />
+      <stop offset="55%" stop-color="#8F949F" />
+      <stop offset="85%" stop-color="#B8BAC2" />
+      <stop offset="100%" stop-color="#686C74" />
+    </linearGradient>
+
+    <linearGradient id="metalArmAngled" x1="0%" y1="0%" x2="0%" y2="100%" gradientTransform="rotate(22)">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="25%" stop-color="#DDE0E6" />
+      <stop offset="55%" stop-color="#8F949F" />
+      <stop offset="85%" stop-color="#B8BAC2" />
+      <stop offset="100%" stop-color="#686C74" />
+    </linearGradient>
+
+    <linearGradient id="weightDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#55585E" />
+      <stop offset="50%" stop-color="#3A3C40" />
+      <stop offset="100%" stop-color="#232426" />
+    </linearGradient>
+
+    <linearGradient id="weightSilver" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="35%" stop-color="#D0D3D9" />
+      <stop offset="70%" stop-color="#8E9299" />
+      <stop offset="100%" stop-color="#5E6166" />
+    </linearGradient>
+
+    <linearGradient id="headshellGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E1E4EA" />
+      <stop offset="50%" stop-color="#C2C6CE" />
+      <stop offset="100%" stop-color="#9CA0A8" />
+    </linearGradient>
+
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- BASE ASSEMBLY -->
+  <g id="base-section" transform="translate(200, 200)">
+    <!-- Main mounting flange -->
+    <circle cx="0" cy="0" r="115" fill="url(#basePlateGrad)" />
+    <circle cx="0" cy="0" r="115" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.6" />
+
+    <!-- Anti-skate / Sub-dial platform -->
+    <g transform="translate(20, -45) rotate(15)">
+      <rect x="-18" y="-40" width="36" height="50" rx="12" fill="#DDE0E5" stroke="#B0B4BD" stroke-width="1.5" />
+      <circle cx="0" cy="-24" r="18" fill="url(#gimbalTop)" stroke="#9DA1AA" stroke-width="1.5" />
+      <circle cx="0" cy="-24" r="10" fill="#E8EAEE" stroke="#B0B4BC" stroke-width="1" />
+      <circle cx="0" cy="-24" r="2.5" fill="#5F636B" />
+    </g>
+
+    <!-- Cueing / Lift Arm Lever -->
+    <g transform="translate(68, -45) rotate(25)">
+      <rect x="-2" y="-42" width="4.5" height="42" rx="2" fill="#8E929A" stroke="#5E6168" stroke-width="0.5" />
+      <!-- Lever handle / grip -->
+      <rect x="-4.5" y="-46" width="9" height="20" rx="2.5" fill="url(#weightDark)" stroke="#1D1E20" stroke-width="0.8" />
+      <line x1="-3" y1="-40" x2="3" y2="-40" stroke="#7A7E85" stroke-width="1" />
+      <line x1="-3" y1="-36" x2="3" y2="-36" stroke="#7A7E85" stroke-width="1" />
+      <line x1="-3" y1="-32" x2="3" y2="-32" stroke="#7A7E85" stroke-width="1" />
+    </g>
+
+    <!-- Arm Rest Bar & Guide (Curved support) -->
+    <path d="M 42,-5 C 55,10 58,28 48,42 C 44,47 38,48 35,42 C 33,38 38,20 28,10 Z" fill="#2B2D31" />
+    <circle cx="50" cy="18" r="8" fill="#B0B4BD" stroke="#80848D" stroke-width="1.5" />
+    <circle cx="50" cy="18" r="4.5" fill="#E8EAEE" />
+
+    <!-- Gimbal Outer Housing Ring -->
+    <circle cx="0" cy="0" r="54" fill="url(#ringGrad)" stroke="#4A4D53" stroke-width="2" />
+    <circle cx="0" cy="0" r="46" fill="#D3D6DC" stroke="#90949D" stroke-width="1.5" />
+
+    <!-- Gimbal Pivot Center Cylinder -->
+    <circle cx="0" cy="0" r="38" fill="url(#gimbalTop)" stroke="#8A8E96" stroke-width="1.5" />
+    <circle cx="0" cy="0" r="34" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+  </g>
+
+  <!-- TONEARM, COUNTERWEIGHT & HEADSHELL (Rotatable Rigid Unit) -->
+  <g id="tonearm-assembly">
+    <!-- Arm Base Gimbal Yoke Support (Horizontal bridge over base) -->
+    <path d="M 140,191 L 265,191 C 272,191 278,195 278,200 C 278,205 272,209 265,209 L 140,209 Z" fill="#72767E" opacity="0.4" />
+    <path d="M 145,193 L 260,193 C 265,193 270,196 270,200 C 270,204 265,207 260,207 L 145,207 Z" fill="#5A5D64" />
+
+    <!-- COUNTERWEIGHT (Rear / Left side) -->
+    <!-- Stub Shaft -->
+    <rect x="52" y="193" width="70" height="14" rx="2" fill="url(#metalArm)" stroke="#52555B" stroke-width="1" />
+
+    <!-- Counterweight Flare / Bushing -->
+    <path d="M 98,181 L 115,190 L 115,210 L 98,219 Z" fill="url(#weightSilver)" stroke="#5C6067" stroke-width="1" />
+
+    <!-- Main Counterweight Barrel -->
+    <rect x="56" y="174" width="42" height="52" rx="4" fill="url(#weightDark)" stroke="#1F2022" stroke-width="1.5" />
+    <!-- Weight Center Stripe (Silver Ring) -->
+    <rect x="62" y="174" width="12" height="52" fill="url(#weightSilver)" stroke="#494C52" stroke-width="0.8" />
+    <!-- Numbered scale sub-dial on front of weight -->
+    <rect x="94" y="176" width="5" height="48" rx="1" fill="#1C1D1F" />
+    <line x1="96" y1="180" x2="96" y2="220" stroke="#FFFFFF" stroke-width="0.75" stroke-dasharray="2,3" />
+
+    <!-- Counterweight End Cap -->
+    <rect x="44" y="180" width="12" height="40" rx="3" fill="url(#weightSilver)" stroke="#6C7077" stroke-width="1" />
+    <line x1="48" y1="183" x2="48" y2="217" stroke="#FFFFFF" stroke-width="1" opacity="0.8" />
+
+    <!-- MAIN STRAIGHT TUBE (Continuous from pivot to near headshell) -->
+    <!-- Straight Arm Tube: (X: 115 to 640) - Perfectly straight horizontal section -->
+    <path d="M 115,194.5 L 640,194.5 C 648,194.5 655,197 662,201.5 L 696,219.5 L 690,229 L 654,210.5 C 649,207.5 644,205.5 638,205.5 L 115,205.5 Z" fill="url(#metalArm)" stroke="#60646B" stroke-width="1" filter="url(#dropShadow)" />
+    
+    <!-- Specular core line along straight tone-tube -->
+    <line x1="118" y1="197" x2="640" y2="197" stroke="#FFFFFF" stroke-width="1.5" opacity="0.9" />
+    
+    <!-- Specular line following the head bend -->
+    <path d="M 640,197 C 646,197 652,199 658,203 L 693,222" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.85" />
+
+    <!-- Pivot Center Ring / Gimbal Axis Cap over the tube -->
+    <circle cx="200" cy="200" r="16" fill="url(#gimbalTop)" stroke="#72757C" stroke-width="1.5" />
+    <circle cx="200" cy="200" r="8" fill="#B2B5BC" stroke="#5E6168" stroke-width="1" />
+    <circle cx="200" cy="200" r="3" fill="#3D3F43" />
+
+    <!-- ANGLED HEAD SECTION (Bent only at the head) -->
+    <!-- Tonearm Connector / Locking Nut (Bayonet H-4 Collar) -->
+    <g transform="translate(693, 224.5) rotate(25)">
+      <!-- Locking Collar -->
+      <rect x="-4" y="-9" width="18" height="18" rx="2" fill="url(#weightSilver)" stroke="#4A4C52" stroke-width="1" />
+      <!-- Collar Knurling Grooves -->
+      <line x1="0" y1="-8" x2="0" y2="8" stroke="#505359" stroke-width="1.2" />
+      <line x1="3" y1="-8" x2="3" y2="8" stroke="#505359" stroke-width="1.2" />
+      <line x1="6" y1="-8" x2="6" y2="8" stroke="#505359" stroke-width="1.2" />
+      <line x1="9" y1="-8" x2="9" y2="8" stroke="#505359" stroke-width="1.2" />
+
+      <!-- Headshell Body (Standard angled cartridge mount) -->
+      <!-- Main body shell -->
+      <path d="M 14,-14 L 98,-14 C 102,-14 105,-11 105,-6 L 105,18 C 105,21 102,23 98,23 L 14,15 Z" fill="url(#headshellGrad)" stroke="#686C74" stroke-width="1.2" />
+
+      <!-- Top highlight bezel -->
+      <path d="M 16,-12 L 96,-12 C 98,-12 100,-10 100,-6 L 100,16" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.7" />
+
+      <!-- Circular weight-reduction / styling cutout -->
+      <circle cx="36" cy="2" r="10" fill="#B0B4BC" stroke="#7A7D85" stroke-width="1" />
+      <circle cx="36" cy="2" r="8" fill="#9DA0A8" />
+
+      <!-- Cartridge mounting slots (Dual parallel slots) -->
+      <rect x="62" y="-7" width="26" height="4.5" rx="2" fill="#3E4044" stroke="#252628" stroke-width="0.8" />
+      <rect x="62" y="4" width="26" height="4.5" rx="2" fill="#3E4044" stroke="#252628" stroke-width="0.8" />
+
+      <!-- Finger Lift (Curved ergonomic handle on right/outer edge) -->
+      <path d="M 76,-14 C 80,-26 86,-38 98,-44 C 102,-46 105,-44 104,-40 C 102,-36 94,-24 88,-14 Z" fill="url(#weightSilver)" stroke="#585B62" stroke-width="1" />
+      <!-- Finger Lift cueing dot/grip tip -->
+      <circle cx="102" cy="-42.5" r="2.5" fill="#3E4045" />
+    </g>
+  </g>
+</svg>
