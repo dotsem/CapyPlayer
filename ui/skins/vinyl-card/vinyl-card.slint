@@ -1,0 +1,76 @@
+
+
+import { MediaData } from "../../models/media-data.slint";
+import { Vinyl } from "../../components/vinyl.slint";
+import { VerticalBox, GroupBox } from "std-widgets.slint";
+
+component Metadata {
+    in property <string> title;
+    in property <string> artist;
+    VerticalLayout {
+        Text {
+            text: title;
+            font-size: 14px;
+            font-weight: 600;
+            color: black;
+        }
+
+        Text {
+            text: artist;
+            font-size: 12px;
+            color: black;
+        }
+    }
+}
+
+component Visualizer { }
+
+component Card inherits Rectangle {
+    in property <string> title;
+    in property <string> artist;
+    in property <length> vinyl-size;
+
+    VerticalBox {
+        padding-left: vinyl-size;
+
+        Metadata {
+            title: root.title;
+            artist: root.artist;
+        }
+
+        Visualizer { }
+    }
+}
+
+
+export component VinylCard inherits Rectangle {
+    in property <MediaData> media_data;
+    in property <float> vinyl_angle: 0.0;
+    in property <float> animation_phase: 0.0;
+    private property <length> margin: 8px;
+
+    width: 100%;
+    height: 100%;
+
+    Card {
+        width: 90%;
+        height: 80%;
+        background: yellow;
+        x: root.width - self.width - root.margin;
+        y: root.height * 0.5 - self.height * 0.5;
+        border-radius: 16px; // TODO use radius defined in registry
+
+        title: root.media_data.title;
+        artist: root.media_data.artist;
+        vinyl-size: vinyl.width - root.width / 20; // why: accounts for the 5% margin on each side
+    }
+
+    vinyl := Vinyl {
+        height: root.height - 2 * root.margin;
+        width: self.height;
+        x: root.margin;
+        y: root.margin;
+        album_art: root.media_data.album_art;
+        vinyl_angle: root.vinyl_angle;
+    }
+}

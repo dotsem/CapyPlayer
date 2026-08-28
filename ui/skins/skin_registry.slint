@@ -2,6 +2,10 @@ export struct SkinConfig {
     width: length,
     height: length,
     border_radius: length,
+    border_top_left_radius: length,
+    border_top_right_radius: length,
+    border_bottom_left_radius: length,
+    border_bottom_right_radius: length,
     transparent_background: bool,
 }
 
@@ -11,7 +15,15 @@ export global SkinRegistry {
             return {
                 width: 300px,
                 height: 420px,
-                border_radius: 0px,
+                border_top_left_radius: 12px,
+                transparent_background: true,
+            };
+        }
+        if (skin-name.to-lowercase() == "vinyl-card") {
+            return {
+                width: 500px,
+                height: 150px,
+                border-radius: 16px,
                 transparent_background: true,
             };
         }
