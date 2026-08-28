@@ -1,0 +1,51 @@
+
+export component Vinyl {
+    in property <image> album_art;
+    in property <float> vinyl_angle: 0.0;
+
+    placeholder := Rectangle {
+        width: 48%;
+        height: self.width;
+        border-radius: self.width / 2;
+        background: #111;
+        x: root.width * 0.5 - self.width * 0.5;
+        y: root.height * 0.5 - self.height * 0.5;
+    }
+
+    states [
+        has-art when root.album_art.width > 0: {
+            art.opacity: 1.0;
+            in {
+                animate art.opacity {
+                    duration: 250ms;
+                    easing: ease-in-out;
+                }
+            }
+        }
+        no-art when root.album_art.width == 0: {
+            art.opacity: 0.0;
+            in {
+                animate art.opacity {
+                    duration: 250ms;
+                    easing: ease-in-out;
+                }
+            }
+        }
+    ]
+    art := Image {
+        source: root.album_art;
+        opacity: 0.0; // Base value
+        x: placeholder.x;
+        y: placeholder.y;
+        width: placeholder.width;
+        height: placeholder.height;
+        transform-rotation: root.vinyl_angle * 1deg;
+    }
+
+    Image {
+        width: 100%;
+        height: self.width;
+        source: @image-url("../assets/vinyl.svg");
+        transform-rotation: root.vinyl_angle * 1deg;
+    }
+}

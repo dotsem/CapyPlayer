@@ -2,7 +2,7 @@ import { VerticalBox, Button } from "std-widgets.slint";
 import { CapyPlayer } from "capy-player.slint";
 import { MediaData } from "models/media-data.slint";
 import { SkinRegistry, SkinConfig } from "skins/skin_registry.slint";
-import { VinylPlayer } from "skins/vinyl/vinyl.slint";
+import { VinylPlayer } from "skins/vinyl-player/vinyl-player.slint";
 
 export { SkinRegistry, SkinConfig }
 export component CapySpellPlayer inherits Window {
@@ -11,7 +11,7 @@ export component CapySpellPlayer inherits Window {
     in-out property <float> vinyl_angle: 0.0;
     in-out property <float> animation_phase: 0.0;
 
-    in property <string> skin: "Vinyl";
+    in property <string> skin: "vinyl-player";
 
     out property <SkinConfig> current_skin: SkinRegistry.get_config(root.skin);
 
