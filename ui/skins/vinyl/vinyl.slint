@@ -2,6 +2,7 @@
 
 import { MediaData } from "../../models/media-data.slint";
 import { Calc } from "../../func/calc.slint";
+import { Button, StandardButton } from "std-widgets.slint";
 
 
 component Vinyl {
@@ -57,13 +58,83 @@ component Vinyl {
 
 
 
-component Player {
+component Housing {
+
     Rectangle {
         background: yellow;
         width: 100%;
         height: 100%;
         border-top-left-radius: 24px;
         border-top-right-radius: 24px;
+
+        @children
+    }
+}
+
+component ControlButton {
+    in property <string> text;
+    callback on-click();
+
+    VerticalLayout {
+
+        Button {
+            clicked => { root.on-click() }
+        }
+
+        Text {
+            color: black;
+            font-size: 12px;
+            text: root.text;
+            horizontal-alignment: center;
+        }
+    }
+}
+
+component Controls {
+    in property <bool> is-playing;
+    callback play_pause();
+    callback next();
+    callback prev();
+
+    HorizontalLayout {
+        spacing: 16px;
+
+        ControlButton {
+            text: root.is-playing ? "Pause" : "Play";
+            on-click => { root.play_pause() }
+        }
+
+        Rectangle { }
+
+        ControlButton {
+            text: "Prev";
+            on-click => { root.prev() }
+        }
+
+        ControlButton {
+            text: "Next";
+            on-click => { root.next() }
+        }
+    }
+}
+
+component Metadata {
+    in property <string> title;
+    in property <string> artist;
+
+    VerticalLayout {
+        spacing: 4px;
+        Text {
+            color: black;
+            font-size: 12px;
+            text: root.title;
+        }
+
+        Text {
+            color: black;
+            font-size: 12px;
+            text: root.artist;
+        }
     }
 }
 
@@ -102,15 +173,36 @@ export component VinylPlayer {
     in property <MediaData> media_data;
     in property <float> vinyl_angle: 0.0;
 
+    callback play_pause();
+    callback next();
+    callback prev();
+
     width: 100%;
     height: 100%;
 
-    Player {
+    Housing {
         x: parent.width - self.width;
         y: parent.height - self.height;
 
         width: 80%;
         height: 100%;
+
+        VerticalLayout {
+            padding: 8px;
+            spacing: 12px;
+            alignment: end;
+            Metadata {
+                title: root.media_data.title;
+                artist: root.media_data.artist;
+            }
+
+            Controls {
+                is-playing: root.media_data.is-playing;
+                play_pause => { root.play_pause() }
+                next => { root.next() }
+                prev => { root.prev() }
+            }
+        }
     }
 
     Vinyl {

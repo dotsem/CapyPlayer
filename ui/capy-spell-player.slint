@@ -27,5 +27,9 @@ export component CapySpellPlayer inherits Window {
     VinylPlayer {
         media_data: root.media_data;
         vinyl_angle: root.vinyl_angle;
+
+        play_pause => { play_pause() }
+        next => { next() }
+        prev => { prev() }
     }
 }
