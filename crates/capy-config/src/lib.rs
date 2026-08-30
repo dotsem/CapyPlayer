@@ -35,7 +35,7 @@ pub struct ConfigStore<T> {
 
 impl<T> ConfigStore<T>
 where
-    T: Serialize + DeserializeOwned + Default + Clone + Send + Sync + 'static,
+    T: Serialize + DeserializeOwned + Default + Clone + PartialEq + Send + Sync + 'static,
 {
     pub fn open(app_name: &str) -> Result<Self, ConfigError> {
         let base_dir = dirs::config_dir().ok_or(ConfigError::NoConfigDir)?;
@@ -88,6 +88,10 @@ where
 
                     std::thread::spawn(move || {
                         while let Ok(event) = rx.recv() {
+                            if event.kind.is_access() {
+                                continue;
+                            }
+
                             let is_target = event
                                 .paths
                                 .iter()
@@ -103,6 +107,16 @@ where
                             match fs::read_to_string(&path_clone) {
                                 Ok(content) => match toml::from_str::<T>(&content) {
                                     Ok(new_val) => {
+                                        let changed = if let Ok(lock) = data_clone.read() {
+                                            *lock != new_val
+                                        } else {
+                                            true
+                                        };
+
+                                        if !changed {
+                                            continue;
+                                        }
+
                                         info!("Configuration reloaded from disk");
                                         if let Ok(mut lock) = data_clone.write() {
                                             *lock = new_val.clone();
