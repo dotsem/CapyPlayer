@@ -30,6 +30,8 @@ component Card inherits Rectangle {
     in property <length> vinyl-size;
     in property <[float]> visualizer_bars;
 
+    clip: true;
+
     VerticalBox {
         padding-left: vinyl-size;
         padding-bottom: 0px;
@@ -55,11 +57,24 @@ export component VinylCard inherits Rectangle {
     in property <[float]> visualizer_bars;
     private property <length> margin: 8px;
 
+    private property <bool> expanded: true;
+
+    private property <length> vinyl_x: root.expanded
+        ? root.margin
+        : (root.width - vinyl.width - root.margin);
+    private property <length> card_width: root.expanded
+        ? (root.width * 0.9)
+        : 0px;
+    animate card_width, vinyl_x {
+        duration: 500ms;
+        easing: ease-out;
+    }
+
     width: 100%;
     height: 100%;
 
     Card {
-        width: 90%;
+        width: card_width;
         height: 80%;
         background: yellow;
         x: root.width - self.width - root.margin;
@@ -72,12 +87,22 @@ export component VinylCard inherits Rectangle {
         visualizer_bars: root.visualizer_bars;
     }
 
-    vinyl := Vinyl {
-        height: root.height - 2 * root.margin;
-        width: self.height;
-        x: root.margin;
+    TouchArea {
+        mouse-cursor: root.expanded ? e-resize : w-resize;
+        clicked => {
+            root.expanded = !root.expanded;
+        }
+        x: vinyl_x;
         y: root.margin;
-        album_art: root.media_data.album_art;
-        vinyl_angle: root.vinyl_angle;
+
+        width: vinyl.width;
+        height: vinyl.height;
+
+        vinyl := Vinyl {
+            height: root.height - 2 * root.margin;
+            width: self.height;
+            album_art: root.media_data.album_art;
+            vinyl_angle: root.vinyl_angle;
+        }
     }
 }
