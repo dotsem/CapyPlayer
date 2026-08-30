@@ -1,3 +1,5 @@
+use capy_config::ConfigStore;
+use config::Settings;
 use slint::{ComponentHandle, SharedString};
 use spell_framework::{
     self, cast_spell,
@@ -10,6 +12,7 @@ spell_framework::generate_widgets![CapySpellPlayer];
 
 mod animation;
 mod config;
+mod image_cache;
 
 const WINDOW_WIDTH: u32 = 200;
 const WINDOW_HEIGHT: u32 = 200;
@@ -48,38 +51,24 @@ fn hash_string(s: &str) -> u64 {
     hasher.finish()
 }
 
-thread_local! {
-    static ART_CACHE: RefCell<(String, slint::Image)> = RefCell::new((String::new(), slint::Image::default()));
-    static BLUR_CACHE: RefCell<(String, slint::Image)> = RefCell::new((String::new(), slint::Image::default()));
-}
+fn apply_skin_and_layout(ui: &CapySpellPlayer, settings: &Settings) {
+    ui.set_skin(settings.skin.as_str().into());
 
-fn load_image_cached(path: &str, has_media: bool, is_blur: bool) -> slint::Image {
-    if !has_media || path.is_empty() {
-        return slint::Image::default();
-    }
+    let skin_cfg = ui.get_current_skin();
+    let width = skin_cfg.width * settings.scale;
+    let height = skin_cfg.height * settings.scale;
+    log::info!(
+        "Applying skin: {}, Scale: {}, Width: {}, Height: {}",
+        settings.skin,
+        settings.scale,
+        width,
+        height
+    );
+    ui.window().set_size(slint::LogicalSize::new(width, height));
 
-    let slot = if is_blur { &BLUR_CACHE } else { &ART_CACHE };
-
-    slot.with(|cell| {
-        let cached = cell.borrow();
-        if cached.0 == path {
-            log::debug!("Image cache hit for: {} (is_blur={})", path, is_blur);
-            return cached.1.clone();
-        }
-        drop(cached);
-
-        let start = std::time::Instant::now();
-        log::info!(
-            "Image cache miss. Loading from disk: {} (is_blur={})",
-            path,
-            is_blur
-        );
-        let img = slint::Image::load_from_path(std::path::Path::new(path)).unwrap_or_default();
-        log::info!("Loaded image in {:?}", start.elapsed());
-
-        *cell.borrow_mut() = (path.to_string(), img.clone());
-        img
-    })
+    let max_dim = (width.max(height)).round() as u32;
+    capy_player::mpris::set_album_size(max_dim);
+    capy_player::mpris::set_blur_album_size(max_dim);
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -99,7 +88,22 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let ui = CapySpellPlayerSpell::invoke_spell("capy-player", window_conf);
 
-    ui.set_skin(config::get_skin().into());
+    let config_store = match ConfigStore::<Settings>::open("capy-player") {
+        Ok(store) => store,
+        Err(err) => {
+            log::warn!("failed to open system config store: {err}, falling back to local file");
+            ConfigStore::open_at(std::path::PathBuf::from("config.toml"))?
+        }
+    };
+
+    apply_skin_and_layout(&ui, &config_store.get());
+
+    let ui_weak_cfg = ui.as_weak();
+    config_store.on_change(move |new_settings| {
+        let _ = ui_weak_cfg.upgrade_in_event_loop(move |ui| {
+            apply_skin_and_layout(&ui, &new_settings);
+        });
+    });
 
     let ui_weak_vis = ui.as_weak();
     capy_player::events::register_visualizer_listener(move |bars| {
@@ -110,24 +114,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     capy_player::visualizer::start();
-
-    let skin_cfg = ui.get_current_skin();
-    let scale = config::get_scale();
-    let width = skin_cfg.width * scale;
-    let height = skin_cfg.height * scale;
-    log::info!(
-        "Skin: {}, Scale: {}, Width: {}, Height: {}",
-        config::get_skin(),
-        scale,
-        width,
-        height
-    );
-    ui.window().set_size(slint::LogicalSize::new(width, height));
-
-    let max_dim = (width.max(height)).round() as u32;
-    capy_player::mpris::set_album_size(max_dim);
-    capy_player::mpris::set_blur_album_size(max_dim);
-
     capy_player::mpris::start();
 
     let server_state = Rc::new(RefCell::new(ServerState::default()));
@@ -181,9 +167,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
 
                     let album_art =
-                        load_image_cached(data.album_art_path.as_str(), data.has_media, false);
+                        image_cache::load_image_cached(data.album_art_path.as_str(), data.has_media, false);
                     let blurred_art =
-                        load_image_cached(data.blurred_art_path.as_str(), data.has_media, true);
+                        image_cache::load_image_cached(data.blurred_art_path.as_str(), data.has_media, true);
 
                     let media_data = MediaData {
                         title: SharedString::from(data.title),
