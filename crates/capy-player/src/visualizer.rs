@@ -1,11 +1,19 @@
-use crate::CapySpellPlayer;
 use futures::StreamExt;
 use log::{error, info};
-use slint::{ModelRc, VecModel};
-use std::rc::Rc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use wayle_cava::{CavaService, InputMethod};
 
-pub(crate) fn start(ui_weak: slint::Weak<CapySpellPlayer>) {
+static ACTIVE: AtomicBool = AtomicBool::new(false);
+
+pub fn set_active(active: bool) {
+    ACTIVE.store(active, Ordering::Relaxed);
+}
+
+pub fn is_active() -> bool {
+    ACTIVE.load(Ordering::Relaxed)
+}
+
+pub fn start() {
     std::thread::Builder::new()
         .name("cava-service".to_string())
         .spawn(move || {
@@ -21,7 +29,7 @@ pub(crate) fn start(ui_weak: slint::Weak<CapySpellPlayer>) {
             };
 
             rt.block_on(async move {
-                if let Err(e) = run_cava_loop(ui_weak).await {
+                if let Err(e) = run_cava_loop().await {
                     error!("Cava service error: {e}");
                 }
             });
@@ -29,9 +37,7 @@ pub(crate) fn start(ui_weak: slint::Weak<CapySpellPlayer>) {
         .expect("Failed to spawn cava thread");
 }
 
-async fn run_cava_loop(
-    ui_weak: slint::Weak<CapySpellPlayer>,
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn run_cava_loop() -> Result<(), Box<dyn std::error::Error>> {
     info!("Starting wayle-cava service");
     let cava = CavaService::builder()
         .bars(24)
@@ -48,6 +54,10 @@ async fn run_cava_loop(
     let mut stream = cava.values.watch();
     let mut frame_count: u64 = 0;
     while let Some(values) = stream.next().await {
+        if !is_active() {
+            continue;
+        }
+
         frame_count += 1;
         if frame_count % 60 == 0 {
             log::debug!("Cava sample: {:?}", &values[..values.len().min(4)]);
@@ -69,11 +79,7 @@ async fn run_cava_loop(
             })
             .collect();
 
-        let ui_weak_clone = ui_weak.clone();
-        let _ = ui_weak_clone.upgrade_in_event_loop(move |ui| {
-            let model: Rc<VecModel<f32>> = Rc::new(VecModel::from(bars));
-            ui.set_visualizer_bars(ModelRc::from(model));
-        });
+        crate::events::send_visualizer(bars);
     }
 
     Ok(())

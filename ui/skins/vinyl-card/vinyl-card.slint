@@ -70,6 +70,12 @@ export component VinylCard inherits Rectangle {
         easing: ease-out;
     }
 
+    callback visualizer-toggled(active: bool);
+
+    init => {
+        visualizer-toggled(root.expanded);
+    }
+
     width: 100%;
     height: 100%;
 
@@ -91,6 +97,7 @@ export component VinylCard inherits Rectangle {
         mouse-cursor: root.expanded ? e-resize : w-resize;
         clicked => {
             root.expanded = !root.expanded;
+            root.visualizer-toggled(root.expanded);
         }
         x: vinyl_x;
         y: root.margin;

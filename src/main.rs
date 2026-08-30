@@ -10,7 +10,6 @@ spell_framework::generate_widgets![CapySpellPlayer];
 
 mod animation;
 mod config;
-mod wayle_cava;
 
 const WINDOW_WIDTH: u32 = 200;
 const WINDOW_HEIGHT: u32 = 200;
@@ -102,7 +101,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     ui.set_skin(config::get_skin().into());
 
-    wayle_cava::start(ui.as_weak());
+    let ui_weak_vis = ui.as_weak();
+    capy_player::events::register_visualizer_listener(move |bars| {
+        let _ = ui_weak_vis.upgrade_in_event_loop(move |ui| {
+            let model: Rc<slint::VecModel<f32>> = Rc::new(slint::VecModel::from(bars));
+            ui.set_visualizer_bars(slint::ModelRc::from(model));
+        });
+    });
+
+    capy_player::visualizer::start();
 
     let skin_cfg = ui.get_current_skin();
     let scale = config::get_scale();
@@ -128,7 +135,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (tx, rx) = mpsc::channel();
 
     let tx_clone = tx.clone();
-    capy_player::events::register_listener(move |data| {
+    capy_player::events::register_mpris_listener(move |data| {
         let _ = tx_clone.send(data);
     });
 
@@ -148,6 +155,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         std::time::Duration::from_millis(25),
         move || {
             if let Some(ui) = ui_weak_timer.upgrade() {
+                capy_player::visualizer::set_active(ui.get_visualizer_active());
+
                 let mut latest_data = None;
                 while let Ok(data) = rx.try_recv() {
                     latest_data = Some(data);

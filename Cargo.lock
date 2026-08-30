@@ -813,12 +813,14 @@ name = "capy-player"
 version = "0.1.0"
 dependencies = [
  "capy-mpris",
+ "futures",
  "hex",
  "image",
  "log",
  "sha2",
  "tokio",
  "ureq",
+ "wayle-cava",
 ]
 
 [[package]]
@@ -827,16 +829,13 @@ version = "0.1.0"
 dependencies = [
  "capy-player",
  "env_logger",
- "futures",
  "log",
  "paste",
  "serde",
  "slint",
  "slint-build",
  "spell-framework",
- "tokio",
  "toml 0.8.23",
- "wayle-cava",
 ]
 
 [[package]]

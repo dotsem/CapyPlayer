@@ -16,6 +16,7 @@ export component CapySpellPlayer inherits Window {
     in property <string> skin: "vinyl-player";
 
     out property <SkinConfig> current_skin: SkinRegistry.get_config(root.skin);
+    out property <bool> visualizer_active;
 
     callback play_pause();
     callback next();
@@ -41,5 +42,9 @@ export component CapySpellPlayer inherits Window {
         vinyl_angle: root.vinyl_angle;
         animation_phase: root.animation_phase;
         visualizer_bars: root.visualizer_bars;
+
+        visualizer_toggled(active) => {
+            root.visualizer_active = active;
+        }
     }
 }
