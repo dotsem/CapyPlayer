@@ -1,0 +1,12 @@
+[package]
+name = "capy-config"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dirs = "6.0"
+log = "0.4"
+notify = "8.2"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "2.0"
+toml = "0.8"
