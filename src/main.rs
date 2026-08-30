@@ -78,7 +78,6 @@ fn load_image_cached(path: &str, has_media: bool, is_blur: bool) -> slint::Image
         let img = slint::Image::load_from_path(std::path::Path::new(path)).unwrap_or_default();
         log::info!("Loaded image in {:?}", start.elapsed());
 
-        // replace slot — old image is dropped here, freeing decoded pixel data
         *cell.borrow_mut() = (path.to_string(), img.clone());
         img
     })
@@ -126,7 +125,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let server_state = Rc::new(RefCell::new(ServerState::default()));
 
-    // set up channel for thread-safe event communication
     let (tx, rx) = mpsc::channel();
 
     let tx_clone = tx.clone();
@@ -150,7 +148,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         std::time::Duration::from_millis(25),
         move || {
             if let Some(ui) = ui_weak_timer.upgrade() {
-                // drain channel to consume all new background events
                 let mut latest_data = None;
                 while let Ok(data) = rx.try_recv() {
                     latest_data = Some(data);
@@ -241,7 +238,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         },
     );
-    // prevent timer from being dropped at end of main
+    // why: prevent timer from being dropped at end of main
     std::mem::forget(timer);
 
     ui.on_play_pause(|| {
