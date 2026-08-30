@@ -1,0 +1,22 @@
+export component Visualizer inherits Rectangle {
+    in property <[float]> bars: [0.0, 0.0, 0.0, 0.0];
+    in property <color> bar_color: black;
+
+    HorizontalLayout {
+        alignment: space-between;
+        for bar in root.bars: VerticalLayout {
+            alignment: end;
+            Rectangle {
+                width: root.width / root.bars.length;
+                height: Math.max(0px, root.height * Math.min(Math.max(bar, 0.0), 1.0));
+
+                background: root.bar_color;
+                border-radius: 1.5px;
+                animate height {
+                    duration: 35ms;
+                    easing: ease-out;
+                }
+            }
+        }
+    }
+}

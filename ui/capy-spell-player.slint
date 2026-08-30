@@ -11,6 +11,7 @@ export component CapySpellPlayer inherits Window {
     in-out property <float> position_secs;
     in-out property <float> vinyl_angle: 0.0;
     in-out property <float> animation_phase: 0.0;
+    in-out property <[float]> visualizer_bars: [0.0, 0.0, 0.0, 0.0];
 
     in property <string> skin: "vinyl-player";
 
@@ -39,5 +40,6 @@ export component CapySpellPlayer inherits Window {
         media_data: root.media_data;
         vinyl_angle: root.vinyl_angle;
         animation_phase: root.animation_phase;
+        visualizer_bars: root.visualizer_bars;
     }
 }

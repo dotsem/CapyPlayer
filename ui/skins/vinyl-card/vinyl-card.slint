@@ -2,6 +2,7 @@
 
 import { MediaData } from "../../models/media-data.slint";
 import { Vinyl } from "../../components/vinyl.slint";
+import { Visualizer } from "../../components/visualizer.slint";
 import { VerticalBox, GroupBox } from "std-widgets.slint";
 
 component Metadata {
@@ -23,22 +24,26 @@ component Metadata {
     }
 }
 
-component Visualizer { }
-
 component Card inherits Rectangle {
     in property <string> title;
     in property <string> artist;
     in property <length> vinyl-size;
+    in property <[float]> visualizer_bars;
 
     VerticalBox {
         padding-left: vinyl-size;
+        padding-bottom: 0px;
 
         Metadata {
             title: root.title;
             artist: root.artist;
         }
 
-        Visualizer { }
+        Visualizer {
+            bars: root.visualizer_bars;
+            height: parent.height * 0.6;
+            width: 100%;
+        }
     }
 }
 
@@ -47,6 +52,7 @@ export component VinylCard inherits Rectangle {
     in property <MediaData> media_data;
     in property <float> vinyl_angle: 0.0;
     in property <float> animation_phase: 0.0;
+    in property <[float]> visualizer_bars;
     private property <length> margin: 8px;
 
     width: 100%;
@@ -63,6 +69,7 @@ export component VinylCard inherits Rectangle {
         title: root.media_data.title;
         artist: root.media_data.artist;
         vinyl-size: vinyl.width - root.width / 20; // why: accounts for the 5% margin on each side
+        visualizer_bars: root.visualizer_bars;
     }
 
     vinyl := Vinyl {

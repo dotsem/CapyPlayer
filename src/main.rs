@@ -10,6 +10,7 @@ spell_framework::generate_widgets![CapySpellPlayer];
 
 mod animation;
 mod config;
+mod wayle_cava;
 
 const WINDOW_WIDTH: u32 = 200;
 const WINDOW_HEIGHT: u32 = 200;
@@ -101,6 +102,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ui = CapySpellPlayerSpell::invoke_spell("capy-player", window_conf);
 
     ui.set_skin(config::get_skin().into());
+
+    wayle_cava::start(ui.as_weak());
 
     let skin_cfg = ui.get_current_skin();
     let scale = config::get_scale();
