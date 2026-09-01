@@ -1,17 +1,24 @@
 import { VerticalBox, Button } from "std-widgets.slint";
 import { CapyPlayer } from "capy-player.slint";
 import { MediaData } from "models/media-data.slint";
+import { AnimationState } from "models/animation-state.slint";
 import { SkinRegistry, SkinConfig } from "skins/skin_registry.slint";
 import { VinylPlayer } from "skins/vinyl-player/vinyl-player.slint";
 import { VinylCard } from "skins/vinyl-card/vinyl-card.slint";
 
-export { SkinRegistry, SkinConfig }
+export { SkinRegistry, SkinConfig, AnimationState }
 export component CapySpellPlayer inherits Window {
     in property <MediaData> media_data;
     in-out property <float> position_secs;
     in-out property <float> vinyl_angle: 0.0;
     in-out property <float> animation_phase: 0.0;
     in-out property <[float]> visualizer_bars: [0.0, 0.0, 0.0, 0.0];
+
+    private property <AnimationState> animation_state: {
+        vinyl_angle: root.vinyl_angle,
+        phase: root.animation_phase,
+        bars: root.visualizer_bars,
+    };
 
     in property <string> skin: "vinyl-player";
 
@@ -30,19 +37,18 @@ export component CapySpellPlayer inherits Window {
     if (root.skin.to-lowercase() == "vinyl-player"): 
     VinylPlayer {
         media_data: root.media_data;
-        vinyl_angle: root.vinyl_angle;
         position_secs: root.position_secs;
+        animation_state: root.animation_state;
 
-        play_pause => { play_pause() }
-        next => { next() }
-        prev => { prev() }
+        play_pause => { root.play_pause() }
+        next => { root.next() }
+        prev => { root.prev() }
     }
     if (root.skin.to-lowercase() == "vinyl-card"): 
     VinylCard {
         media_data: root.media_data;
-        vinyl_angle: root.vinyl_angle;
-        animation_phase: root.animation_phase;
-        visualizer_bars: root.visualizer_bars;
+        position_secs: root.position_secs;
+        animation_state: root.animation_state;
 
         visualizer_toggled(active) => {
             root.visualizer_active = active;

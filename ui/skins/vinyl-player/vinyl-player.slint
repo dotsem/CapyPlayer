@@ -5,6 +5,7 @@ import { Calc } from "../../func/calc.slint";
 import { Button, StandardButton } from "std-widgets.slint";
 import { Vinyl } from "../../components/vinyl.slint";
 import { PlayerCard } from "../../components/player-card.slint";
+import { BaseSkin } from "../base-skin.slint";
 
 component ControlButton {
     in property <string> text;
@@ -111,15 +112,7 @@ component PlayerHead {
     }
 }
 
-export component VinylPlayer {
-    in property <MediaData> media_data;
-    in property <float> vinyl_angle: 0.0;
-    in property <float> position_secs: 0.0;
-
-    callback play_pause();
-    callback next();
-    callback prev();
-
+export component VinylPlayer inherits BaseSkin {
     width: 100%;
     height: 100%;
 
@@ -158,8 +151,8 @@ export component VinylPlayer {
         y: 30px;
         width: 90%;
         height: self.width;
-        album_art: media_data.album-art;
-        vinyl_angle: root.vinyl_angle;
+        album_art: root.media_data.album-art;
+        vinyl_angle: root.animation_state.vinyl-angle;
     }
 
     PlayerHead {

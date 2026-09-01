@@ -3,6 +3,7 @@ import { Vinyl } from "../../components/vinyl.slint";
 import { Visualizer } from "../../components/visualizer.slint";
 import { VerticalBox, GroupBox } from "std-widgets.slint";
 import { PlayerCard } from "../../components/player-card.slint";
+import { BaseSkin } from "../base-skin.slint";
 
 component Metadata {
     in property <string> title;
@@ -26,11 +27,7 @@ component Metadata {
 }
 
 
-export component VinylCard inherits Rectangle {
-    in property <MediaData> media_data;
-    in property <float> vinyl_angle: 0.0;
-    in property <float> animation_phase: 0.0;
-    in property <[float]> visualizer_bars;
+export component VinylCard inherits BaseSkin {
     private property <length> margin: 8px;
 
     private property <bool> expanded: true;
@@ -46,10 +43,8 @@ export component VinylCard inherits Rectangle {
         easing: ease-out;
     }
 
-    callback visualizer-toggled(active: bool);
-
     init => {
-        visualizer-toggled(root.expanded);
+        root.visualizer-toggled(root.expanded);
     }
 
     width: 100%;
@@ -76,7 +71,7 @@ export component VinylCard inherits Rectangle {
             }
 
             Visualizer {
-                bars: root.visualizer_bars;
+                bars: root.animation_state.bars;
                 bar_color: root.media_data.text_color;
                 height: parent.height * 0.6;
                 width: 100%;
@@ -100,7 +95,7 @@ export component VinylCard inherits Rectangle {
             height: root.height - 2 * root.margin;
             width: self.height;
             album_art: root.media_data.album_art;
-            vinyl_angle: root.vinyl_angle;
+            vinyl_angle: root.animation_state.vinyl_angle;
         }
     }
 }

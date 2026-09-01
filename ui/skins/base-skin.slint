@@ -1,0 +1,12 @@
+import { MediaData } from "../models/media-data.slint";
+import { AnimationState } from "../models/animation-state.slint";
+export component BaseSkin inherits Rectangle {
+    in property <MediaData> media_data;
+    in property <float> position_secs: 0.0;
+    in property <AnimationState> animation_state;
+    callback play_pause();
+    callback next();
+    callback prev();
+    callback seek(float);
+    callback visualizer_toggled(bool);
+}
