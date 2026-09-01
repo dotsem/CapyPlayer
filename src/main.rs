@@ -166,10 +166,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                         state.has_media = data.has_media;
                     }
 
-                    let album_art =
-                        image_cache::load_image_cached(data.album_art_path.as_str(), data.has_media, false);
-                    let blurred_art =
-                        image_cache::load_image_cached(data.blurred_art_path.as_str(), data.has_media, true);
+                    let album_art = image_cache::load_image_cached(
+                        data.album_art_path.as_str(),
+                        data.has_media,
+                        false,
+                    );
+                    let blurred_art = image_cache::load_image_cached(
+                        data.blurred_art_path.as_str(),
+                        data.has_media,
+                        true,
+                    );
+
+                    let dominant_color = slint::Color::from_rgb_u8(
+                        data.palette.dominant.0,
+                        data.palette.dominant.1,
+                        data.palette.dominant.2,
+                    );
+                    let on_dominant_color = slint::Color::from_rgb_u8(
+                        data.palette.on_dominant.0,
+                        data.palette.on_dominant.1,
+                        data.palette.on_dominant.2,
+                    );
 
                     let media_data = MediaData {
                         title: SharedString::from(data.title),
@@ -181,7 +198,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         position_secs: data.position_secs,
                         is_playing: data.is_playing,
                         has_media: data.has_media,
-                        text_color: slint::Color::from_rgb_u8(255, 255, 255),
+                        text_color: on_dominant_color,
+                        dominant_color,
+                        on_dominant_color,
+                        is_dark: data.palette.is_dark,
                     };
                     ui.set_media_data(media_data);
                     ui.set_position_secs(data.position_secs);
