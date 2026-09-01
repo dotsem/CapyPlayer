@@ -5,7 +5,6 @@
 
 use std::fs;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, OnceLock, RwLock};
 
 use capy_mpris::{MprisClient, MprisData as ClientMprisData, PlayerCommand, PlayerSource};
@@ -39,9 +38,6 @@ pub struct MprisData {
 
 const CACHE_DIR: &str = ".cache/CapyShell/thumbs";
 const CONFIG_DIR: &str = ".config/capyshell";
-
-// Generation counter to handle race conditions for async image loading
-static GENERATION: AtomicU64 = AtomicU64::new(0);
 
 // Global command sender for UI callbacks
 static COMMAND_SENDER: OnceLock<mpsc::Sender<PlayerCommand>> = OnceLock::new();
@@ -101,22 +97,19 @@ async fn run_mpris_loop() {
     )));
 
     let on_update = move |data: ClientMprisData| {
-        let generation = GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
-
-        // Detect track change by comparing art URL
         let is_track_change = {
-            let last = last_art_url.read().unwrap();
-            *last != data.art_url
+            let mut last = last_art_url.write().unwrap();
+            if *last != data.art_url {
+                *last = data.art_url.clone();
+                true
+            } else {
+                false
+            }
         };
 
-        // Update last art URL on track change
         if is_track_change {
-            *last_art_url.write().unwrap() = data.art_url.clone();
-            *cached_art_data.write().unwrap() = (
-                String::new(),
-                String::new(),
-                ArtPalette::default(),
-            );
+            *cached_art_data.write().unwrap() =
+                (String::new(), String::new(), ArtPalette::default());
         }
 
         info!(
@@ -151,9 +144,7 @@ async fn run_mpris_loop() {
         };
         events::send_mpris(immediate_data);
 
-        // Process album art asynchronously if track changed or art is missing
-        let should_process_art =
-            !data.art_url.is_empty() && (is_track_change || cached_art.is_empty());
+        let should_process_art = !data.art_url.is_empty() && is_track_change;
 
         if should_process_art {
             let art_url = data.art_url.clone();
@@ -167,14 +158,15 @@ async fn run_mpris_loop() {
             let source_name = data.source_name.clone();
             let cache_dir_clone = cache_dir_for_update.clone();
             let cached_art_data_clone = cached_art_data.clone();
+            let last_art_url_clone = last_art_url.clone();
 
             tokio::task::spawn_blocking(move || {
-                if GENERATION.load(Ordering::SeqCst) != generation {
+                if *last_art_url_clone.read().unwrap() != art_url {
                     return;
                 }
 
                 if let Some(processed) = art::process_album_art(&art_url, &cache_dir_clone) {
-                    if GENERATION.load(Ordering::SeqCst) != generation {
+                    if *last_art_url_clone.read().unwrap() != art_url {
                         return;
                     }
 
@@ -236,7 +228,6 @@ async fn run_mpris_loop() {
             }
         }
 
-        GENERATION.fetch_add(1, Ordering::SeqCst);
         events::send_mpris(MprisData::default());
     }
 }
