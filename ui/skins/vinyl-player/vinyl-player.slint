@@ -4,21 +4,11 @@ import { MediaData } from "../../models/media-data.slint";
 import { Calc } from "../../func/calc.slint";
 import { Button, StandardButton } from "std-widgets.slint";
 import { Vinyl } from "../../components/vinyl.slint";
-
-component Housing {
-
-    Rectangle {
-        background: yellow;
-        width: 100%;
-        height: 100%;
-        border-top-left-radius: 24px;
-
-        @children
-    }
-}
+import { PlayerCard } from "../../components/player-card.slint";
 
 component ControlButton {
     in property <string> text;
+    in property <color> text_color: black;
     callback on-click();
 
     VerticalLayout {
@@ -28,7 +18,7 @@ component ControlButton {
         }
 
         Text {
-            color: black;
+            color: root.text_color;
             font-size: 12px;
             text: root.text;
             horizontal-alignment: center;
@@ -38,6 +28,8 @@ component ControlButton {
 
 component Controls {
     in property <bool> is-playing;
+    in property <color> text_color;
+
     callback play_pause();
     callback next();
     callback prev();
@@ -47,6 +39,7 @@ component Controls {
 
         ControlButton {
             text: root.is-playing ? "Pause" : "Play";
+            text_color: root.text_color;
             on-click => { root.play_pause() }
         }
 
@@ -54,11 +47,13 @@ component Controls {
 
         ControlButton {
             text: "Prev";
+            text_color: root.text_color;
             on-click => { root.prev() }
         }
 
         ControlButton {
             text: "Next";
+            text_color: root.text_color;
             on-click => { root.next() }
         }
     }
@@ -67,17 +62,18 @@ component Controls {
 component Metadata {
     in property <string> title;
     in property <string> artist;
+    in property <color> text_color: black;
 
     VerticalLayout {
         spacing: 4px;
         Text {
-            color: black;
+            color: root.text_color;
             font-size: 12px;
             text: root.title;
         }
 
         Text {
-            color: black;
+            color: root.text_color;
             font-size: 12px;
             text: root.artist;
         }
@@ -126,12 +122,15 @@ export component VinylPlayer {
     width: 100%;
     height: 100%;
 
-    Housing {
+    PlayerCard {
         x: parent.width - self.width;
         y: parent.height - self.height;
 
         width: 80%;
         height: 100%;
+
+        background: root.media_data.has_media ? root.media_data.dominant_color : #1a1a1a;
+        border-top-left-radius: 24px; // TODO use radius defined in registry
 
         VerticalLayout {
             padding: 8px;
@@ -140,9 +139,11 @@ export component VinylPlayer {
             Metadata {
                 title: root.media_data.title;
                 artist: root.media_data.artist;
+                text_color: root.media_data.on_dominant_color;
             }
 
             Controls {
+                text_color: root.media_data.on_dominant_color;
                 is-playing: root.media_data.is-playing;
                 play_pause => { root.play_pause() }
                 next => { root.next() }

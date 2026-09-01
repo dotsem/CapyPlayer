@@ -1,50 +1,26 @@
-
-
 import { MediaData } from "../../models/media-data.slint";
 import { Vinyl } from "../../components/vinyl.slint";
 import { Visualizer } from "../../components/visualizer.slint";
 import { VerticalBox, GroupBox } from "std-widgets.slint";
+import { PlayerCard } from "../../components/player-card.slint";
 
 component Metadata {
     in property <string> title;
     in property <string> artist;
+    in property <color> text_color: black;
+
     VerticalLayout {
         Text {
             text: title;
             font-size: 14px;
             font-weight: 600;
-            color: black;
+            color: root.text_color;
         }
 
         Text {
             text: artist;
             font-size: 12px;
-            color: black;
-        }
-    }
-}
-
-component Card inherits Rectangle {
-    in property <string> title;
-    in property <string> artist;
-    in property <length> vinyl-size;
-    in property <[float]> visualizer_bars;
-
-    clip: true;
-
-    VerticalBox {
-        padding-left: vinyl-size;
-        padding-bottom: 0px;
-
-        Metadata {
-            title: root.title;
-            artist: root.artist;
-        }
-
-        Visualizer {
-            bars: root.visualizer_bars;
-            height: parent.height * 0.6;
-            width: 100%;
+            color: root.text_color;
         }
     }
 }
@@ -79,18 +55,33 @@ export component VinylCard inherits Rectangle {
     width: 100%;
     height: 100%;
 
-    Card {
+    PlayerCard {
         width: card_width;
         height: 80%;
-        background: yellow;
+        background: root.media_data.has_media ? root.media_data.dominant_color : #1a1a1a;
+        // bg-image: root.media_data.blurred-art; // TODO hook this up to a setting
+        // bg-image-opacity: 0.33; 
         x: root.width - self.width - root.margin;
         y: root.height * 0.5 - self.height * 0.5;
         border-radius: 16px; // TODO use radius defined in registry
 
-        title: root.media_data.title;
-        artist: root.media_data.artist;
-        vinyl-size: vinyl.width - root.width / 20; // why: accounts for the 5% margin on each side
-        visualizer_bars: root.visualizer_bars;
+         VerticalBox {
+            padding-left: vinyl.width - root.width / 20; // why: accounts for the 5% margin on each side
+            padding-bottom: 0px;
+
+            Metadata {
+                title: root.media_data.title;
+                artist: root.media_data.artist;
+                text_color: root.media_data.on_dominant_color;
+            }
+
+            Visualizer {
+                bars: root.visualizer_bars;
+                bar_color: root.media_data.text_color;
+                height: parent.height * 0.6;
+                width: 100%;
+            }
+        }
     }
 
     TouchArea {

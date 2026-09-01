@@ -1,0 +1,25 @@
+export component PlayerCard inherits Rectangle {
+    in property <color> text-color: white;
+    in property <image> bg-image;
+
+    // value between 0.0 & 1.0
+    in property <float> bg-image-opacity: 1.0;
+
+    width: 100%;
+    height: 100%;
+    clip: true;
+    background: transparent;
+    border-radius: 0px;
+
+    if root.bg-image.width > 0: Image {
+        source: root.bg-image;
+        width: 100%;
+        height: 100%;
+        image-fit: cover;
+        opacity: root.bg-image-opacity;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    @children
+}
