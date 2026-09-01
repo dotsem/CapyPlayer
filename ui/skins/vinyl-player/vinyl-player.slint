@@ -114,6 +114,7 @@ component PlayerHead {
 export component VinylPlayer {
     in property <MediaData> media_data;
     in property <float> vinyl_angle: 0.0;
+    in property <float> position_secs: 0.0;
 
     callback play_pause();
     callback next();
@@ -167,7 +168,7 @@ export component VinylPlayer {
         height: 50%;
         width: self.height;
         is_playing: root.media_data.is-playing;
-        position_secs: root.media_data.position-secs;
+        position_secs: root.position-secs;
         length_secs: root.media_data.length-secs;
     }
 }
