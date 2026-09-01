@@ -65,11 +65,24 @@ pub fn process_album_art(url: &str, cache_dir: &Path) -> Option<ProcessedArt> {
     hasher.update(url.as_bytes());
     let hash = hex::encode(hasher.finalize());
 
-    let original_path = cache_dir.join(format!("{}.png", hash));
-    let blur_path = cache_dir.join(format!("{}_blur.png", hash));
+    let original_path = cache_dir.join(format!("{}.jpg", hash));
+    let blur_path = cache_dir.join(format!("{}_blur.jpg", hash));
     let palette_path = cache_dir.join(format!("{}.json", hash));
 
-    if original_path.exists() && blur_path.exists() {
+    // Support legacy png cache hits or new fast jpg cache hits
+    let (found_original, found_blur) = if original_path.exists() && blur_path.exists() {
+        (Some(original_path.clone()), Some(blur_path.clone()))
+    } else {
+        let legacy_orig = cache_dir.join(format!("{}.png", hash));
+        let legacy_blur = cache_dir.join(format!("{}_blur.png", hash));
+        if legacy_orig.exists() && legacy_blur.exists() {
+            (Some(legacy_orig), Some(legacy_blur))
+        } else {
+            (None, None)
+        }
+    };
+
+    if let (Some(orig), Some(blur)) = (found_original, found_blur) {
         if let Some(palette) = get_cached_palette(&hash, &palette_path) {
             info!(
                 "Album art & palette cache hit on disk: {} (took {:?})",
@@ -77,8 +90,8 @@ pub fn process_album_art(url: &str, cache_dir: &Path) -> Option<ProcessedArt> {
                 start_time.elapsed()
             );
             return Some(ProcessedArt {
-                art_path: original_path.to_string_lossy().to_string(),
-                blur_path: blur_path.to_string_lossy().to_string(),
+                art_path: orig.to_string_lossy().to_string(),
+                blur_path: blur.to_string_lossy().to_string(),
                 palette,
             });
         }
@@ -101,11 +114,16 @@ pub fn process_album_art(url: &str, cache_dir: &Path) -> Option<ProcessedArt> {
     let resized = img.resize_to_fill(album_size, album_size, FilterType::CatmullRom);
     resized.save(&original_path).ok()?;
 
-    let blur_base = img.resize_to_fill(blur_album_size, blur_album_size, FilterType::Triangle);
+    let blur_base = if blur_album_size <= album_size {
+        resized.resize_to_fill(blur_album_size, blur_album_size, FilterType::Triangle)
+    } else {
+        img.resize_to_fill(blur_album_size, blur_album_size, FilterType::Triangle)
+    };
     let blurred = blur_base.blur(4.0);
     blurred.save(&blur_path).ok()?;
 
-    let palette = extract_and_cache_palette(&hash, &img, &palette_path);
+    let palette_source = if album_size >= 64 { &resized } else { &img };
+    let palette = extract_and_cache_palette(&hash, palette_source, &palette_path);
 
     info!(
         "Processed, blurred, and extracted palette in {:?}",
@@ -197,13 +215,13 @@ fn extract_and_cache_palette(
 }
 
 fn extract_palette_from_image(img: &image::DynamicImage) -> Option<ArtPalette> {
-    // why: fast downsample to 64x64 via nearest filter to avoid software Lanczos convolution on large images
+    // why: downsample to 64x64 via nearest filter to avoid software convolution on large images
     let small = img.resize_exact(64, 64, FilterType::Nearest);
     let mut small_bytes = Vec::new();
     small
         .write_to(
             &mut std::io::Cursor::new(&mut small_bytes),
-            image::ImageFormat::Png,
+            image::ImageFormat::Jpeg,
         )
         .ok()?;
 
@@ -226,27 +244,15 @@ fn extract_palette_from_image(img: &image::DynamicImage) -> Option<ArtPalette> {
         dominant,
         on_dominant,
         is_dark,
-        primary: (
-            scheme.primary.red,
-            scheme.primary.green,
-            scheme.primary.blue,
-        ),
-        on_primary: (
-            scheme.on_primary.red,
-            scheme.on_primary.green,
-            scheme.on_primary.blue,
-        ),
-        surface: (
-            light_scheme.surface.red,
-            light_scheme.surface.green,
-            light_scheme.surface.blue,
-        ),
-        on_surface: (
-            light_scheme.on_surface.red,
-            light_scheme.on_surface.green,
-            light_scheme.on_surface.blue,
-        ),
+        primary: argb_to_rgb(scheme.primary),
+        on_primary: argb_to_rgb(scheme.on_primary),
+        surface: argb_to_rgb(light_scheme.surface),
+        on_surface: argb_to_rgb(light_scheme.on_surface),
     })
+}
+
+fn argb_to_rgb(c: material_colors::color::Argb) -> (u8, u8, u8) {
+    (c.red, c.green, c.blue)
 }
 
 fn is_dark_color(r: u8, g: u8, b: u8) -> bool {
