@@ -1,0 +1,59 @@
+import { Calc } from "../func/calc.slint";
+
+struct PlayerHeadAngles {
+    min: angle,
+    max: angle,
+    resting: angle,
+}
+
+// A rather complex component
+// Children are put between the head & arm layer
+export component VinylArm {
+    in property <bool> is_playing;
+    in property <float> position_secs;
+    in property <float> length_secs;
+    in property <PlayerHeadAngles> angles;
+
+    in property <length> arm_x;
+    in property <length> arm_y;
+    in property <length> arm_height;
+    in property <length> arm_width: root.arm_height;
+
+    in property <image> vinyl-arm-base;
+    in property <image> vinyl-arm;
+
+    Image {
+        source: root.vinyl-arm-base;
+        height: root.arm_height;
+        width: root.arm_width;
+        x: root.arm_x;
+        y: root.arm_y;
+        image-fit: contain;
+    }
+
+    @children
+
+    private property <angle> head-angle: root.is-playing
+        ? Calc.linear-interpolation(root.position_secs, 0.0, root.length_secs, root.angles.min / 1deg, root.angles.max / 1deg) * 1deg
+        : root.angles.resting;
+
+    animate head-angle {
+        duration: 400ms;
+        easing: ease-out;
+    }
+
+    Image {
+        source: root.vinyl-arm;
+        height: root.arm_height;
+        width: root.arm_width;
+        x: root.arm_x;
+        y: root.arm_y;
+        image-fit: contain;
+        transform-rotation: head-angle;
+
+        transform-origin: {
+            x: self.width * (200.0 / 900.0),
+            y: self.height * 0.5,
+        };
+    }
+}

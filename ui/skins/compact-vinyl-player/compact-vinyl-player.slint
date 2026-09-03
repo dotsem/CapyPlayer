@@ -8,6 +8,7 @@ import { PlayerCard } from "../../components/player-card.slint";
 import { BaseSkin } from "../base-skin.slint";
 import { Icons } from "../../icon_registry.slint";
 import { Metadata } from "../../components/meta-data.slint";
+import { VinylArm } from "../../components/vinyl-arm.slint";
 
 component ControlButton {
     in property <image> image;
@@ -185,29 +186,51 @@ export component CompactVinylPlayer inherits BaseSkin {
         }
     }
 
-    PlayerBase {
-        x: player-head.x;
-        y: player-head.y;
-        width: player-head.width;
-        height: player-head.height;
-    }
+    VinylArm {
+        width: root.width;
+        height: root.height;
+        arm_x: 190px;
+        arm_y: -90px;
+        arm_height: root.height * 0.7;
+        arm_width: self.arm_height;
 
-    Vinyl {
-        x: 0;
-        y: 30px;
-        width: 90%;
-        height: self.width;
-        album_art: root.media_data.album-art;
-        vinyl_angle: root.animation_state.vinyl-angle;
-    }
+        angles: {
+            min: 88.0deg,
+            max: 111.0deg,
+            resting: 76deg,
+        };
 
-    player-head := PlayerHead {
-        x: 190px;
-        y: -90px;
-        height: 70%;
-        width: self.height;
         is_playing: root.media_data.is-playing;
         position_secs: root.position-secs;
         length_secs: root.media_data.length-secs;
+
+        vinyl-arm-base: @image-url("../../assets/vinyl-arm-base.svg");
+        vinyl-arm: @image-url("../../assets/vinyl-arm.svg");
+
+        Vinyl {
+            x: 0;
+            y: 30px;
+            width: 90%;
+            height: self.width;
+            album_art: root.media_data.album-art;
+            vinyl_angle: root.animation_state.vinyl-angle;
+        }
     }
+
+    // PlayerBase {
+    //     x: player-head.x;
+    //     y: player-head.y;
+    //     width: player-head.width;
+    //     height: player-head.height;
+    // }
+
+    // player-head := PlayerHead {
+    //     x: 190px;
+    //     y: -90px;
+    //     height: 70%;
+    //     width: self.height;
+    //     is_playing: root.media_data.is-playing;
+    //     position_secs: root.position-secs;
+    //     length_secs: root.media_data.length-secs;
+    // }
 }
