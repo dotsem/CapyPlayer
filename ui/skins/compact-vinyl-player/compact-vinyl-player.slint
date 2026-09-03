@@ -59,7 +59,7 @@ component ControlButton {
                 source: image;
                 colorize: root.color;
                 width: 100%;
-                height: 24px;
+                height: 20px;
             }
         }
     }
@@ -171,8 +171,12 @@ export component CompactVinylPlayer inherits BaseSkin {
     height: 100%;
 
     PlayerCard {
-        x: parent.width - self.width;
-        y: parent.height - self.height;
+        // TODO: sneaky way of hiding the right & bottom border, find a better solution
+        x: parent.width - self.width + 1px;
+        y: parent.height - self.height + 1px;
+
+        border-width: 1px;
+        border-color: root.media_data.has_media ? root.media_data.dominant_color.with-alpha(0.40) : transparent;
 
         width: 80%;
         height: 100%;
