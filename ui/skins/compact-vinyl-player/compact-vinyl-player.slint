@@ -7,6 +7,7 @@ import { Vinyl } from "../../components/vinyl.slint";
 import { PlayerCard } from "../../components/player-card.slint";
 import { BaseSkin } from "../base-skin.slint";
 import { Icons } from "../../icon_registry.slint";
+import { Metadata } from "../../components/meta-data.slint";
 
 component ControlButton {
     in property <image> image;
@@ -99,27 +100,6 @@ component Controls {
             color: root.text_color;
             is_dark: root.is_dark;
             on-click => { root.next() }
-        }
-    }
-}
-
-component Metadata {
-    in property <string> title;
-    in property <string> artist;
-    in property <color> text_color: black;
-
-    VerticalLayout {
-        spacing: 4px;
-        Text {
-            color: root.text_color;
-            font-size: 12px;
-            text: root.title;
-        }
-
-        Text {
-            color: root.text_color;
-            font-size: 12px;
-            text: root.artist;
         }
     }
 }

@@ -4,27 +4,9 @@ import { Visualizer } from "../../components/visualizer.slint";
 import { VerticalBox, GroupBox } from "std-widgets.slint";
 import { PlayerCard } from "../../components/player-card.slint";
 import { BaseSkin } from "../base-skin.slint";
+import { Metadata } from "../../components/meta-data.slint";
 
-component Metadata {
-    in property <string> title;
-    in property <string> artist;
-    in property <color> text_color: black;
 
-    VerticalLayout {
-        Text {
-            text: title;
-            font-size: 14px;
-            font-weight: 600;
-            color: root.text_color;
-        }
-
-        Text {
-            text: artist;
-            font-size: 12px;
-            color: root.text_color;
-        }
-    }
-}
 
 
 export component VinylCard inherits BaseSkin {
