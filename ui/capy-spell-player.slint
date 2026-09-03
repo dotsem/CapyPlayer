@@ -8,8 +8,20 @@ import { VinylCard } from "skins/vinyl-card/vinyl-card.slint";
 
 export { SkinRegistry, SkinConfig, AnimationState }
 export component CapySpellPlayer inherits Window {
-    in property <MediaData> media_data;
-    in-out property <float> position_secs;
+    in property <MediaData> media_data: {
+        title: "Never Gonna Give You Up",
+        artist: "Rick Astley",
+        album: "Whenever You Need Somebody",
+        length_secs: 200,
+        position-secs: 0,
+        is_playing: true,
+        has_media: false,
+        text_color: #000000,
+        dominant_color: #0000ff,
+        on_dominant_color: #ffffff,
+        is_dark: false
+    };
+    in-out property <float> position_secs: 200;
     in-out property <float> vinyl_angle: 0.0;
     in-out property <float> animation_phase: 0.0;
     in-out property <[float]> visualizer_bars: [0.0, 0.0, 0.0, 0.0];
