@@ -3,8 +3,12 @@ import { CapyPlayer } from "capy-player.slint";
 import { MediaData } from "models/media-data.slint";
 import { AnimationState } from "models/animation-state.slint";
 import { SkinRegistry, SkinConfig } from "skins/skin_registry.slint";
-import { VinylPlayer } from "skins/vinyl-player/vinyl-player.slint";
+import { IconRegistry, Icons } from "icon_registry.slint";
+import {
+    CompactVinylPlayer,
+} from "skins/compact-vinyl-player/compact-vinyl-player.slint";
 import { VinylCard } from "skins/vinyl-card/vinyl-card.slint";
+
 
 export { SkinRegistry, SkinConfig, AnimationState }
 export component CapySpellPlayer inherits Window {
@@ -32,7 +36,7 @@ export component CapySpellPlayer inherits Window {
         bars: root.visualizer_bars,
     };
 
-    in property <string> skin: "vinyl-player";
+    in property <string> skin: "compact-vinyl-player";
 
     out property <SkinConfig> current_skin: SkinRegistry.get_config(root.skin);
     out property <bool> visualizer_active;
@@ -46,8 +50,8 @@ export component CapySpellPlayer inherits Window {
     height: root.current_skin.height;
     background: transparent;
 
-    if (root.skin.to-lowercase() == "vinyl-player"): 
-    VinylPlayer {
+    if (root.skin.to-lowercase() == "compact-vinyl-player"): 
+    CompactVinylPlayer {
         media_data: root.media_data;
         position_secs: root.position_secs;
         animation_state: root.animation_state;

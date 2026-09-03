@@ -58,44 +58,6 @@
     </filter>
   </defs>
 
-  <!-- BASE ASSEMBLY -->
-  <g id="base-section" transform="translate(200, 200)">
-    <!-- Main mounting flange -->
-    <circle cx="0" cy="0" r="115" fill="url(#basePlateGrad)" />
-    <circle cx="0" cy="0" r="115" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.6" />
-
-    <!-- Anti-skate / Sub-dial platform -->
-    <g transform="translate(20, -45) rotate(15)">
-      <rect x="-18" y="-40" width="36" height="50" rx="12" fill="#DDE0E5" stroke="#B0B4BD" stroke-width="1.5" />
-      <circle cx="0" cy="-24" r="18" fill="url(#gimbalTop)" stroke="#9DA1AA" stroke-width="1.5" />
-      <circle cx="0" cy="-24" r="10" fill="#E8EAEE" stroke="#B0B4BC" stroke-width="1" />
-      <circle cx="0" cy="-24" r="2.5" fill="#5F636B" />
-    </g>
-
-    <!-- Cueing / Lift Arm Lever -->
-    <g transform="translate(68, -45) rotate(25)">
-      <rect x="-2" y="-42" width="4.5" height="42" rx="2" fill="#8E929A" stroke="#5E6168" stroke-width="0.5" />
-      <!-- Lever handle / grip -->
-      <rect x="-4.5" y="-46" width="9" height="20" rx="2.5" fill="url(#weightDark)" stroke="#1D1E20" stroke-width="0.8" />
-      <line x1="-3" y1="-40" x2="3" y2="-40" stroke="#7A7E85" stroke-width="1" />
-      <line x1="-3" y1="-36" x2="3" y2="-36" stroke="#7A7E85" stroke-width="1" />
-      <line x1="-3" y1="-32" x2="3" y2="-32" stroke="#7A7E85" stroke-width="1" />
-    </g>
-
-    <!-- Arm Rest Bar & Guide (Curved support) -->
-    <path d="M 42,-5 C 55,10 58,28 48,42 C 44,47 38,48 35,42 C 33,38 38,20 28,10 Z" fill="#2B2D31" />
-    <circle cx="50" cy="18" r="8" fill="#B0B4BD" stroke="#80848D" stroke-width="1.5" />
-    <circle cx="50" cy="18" r="4.5" fill="#E8EAEE" />
-
-    <!-- Gimbal Outer Housing Ring -->
-    <circle cx="0" cy="0" r="54" fill="url(#ringGrad)" stroke="#4A4D53" stroke-width="2" />
-    <circle cx="0" cy="0" r="46" fill="#D3D6DC" stroke="#90949D" stroke-width="1.5" />
-
-    <!-- Gimbal Pivot Center Cylinder -->
-    <circle cx="0" cy="0" r="38" fill="url(#gimbalTop)" stroke="#8A8E96" stroke-width="1.5" />
-    <circle cx="0" cy="0" r="34" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
-  </g>
-
   <!-- TONEARM, COUNTERWEIGHT & HEADSHELL (Rotatable Rigid Unit) -->
   <g id="tonearm-assembly">
     <!-- Arm Base Gimbal Yoke Support (Horizontal bridge over base) -->
