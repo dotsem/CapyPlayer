@@ -6,30 +6,70 @@ import { Button, StandardButton } from "std-widgets.slint";
 import { Vinyl } from "../../components/vinyl.slint";
 import { PlayerCard } from "../../components/player-card.slint";
 import { BaseSkin } from "../base-skin.slint";
+import { Icons } from "../../icon_registry.slint";
 
 component ControlButton {
-    in property <string> text;
-    in property <color> text_color: black;
+    in property <image> image;
+    in property <color> color; // on_dominant_color
+    in property <bool> is_dark: true;
     callback on-click();
 
     VerticalLayout {
+        spacing: 4px;
 
-        Button {
-            clicked => { root.on-click() }
+        Rectangle {
+            width: 44px;
+            height: 20px;
+
+            Rectangle {
+                width: 44px;
+                height: 20px;
+                border-radius: 6px;
+                y: touch.pressed ? 2px : 0px;
+
+                border-width: 1px;
+                border-color: touch.pressed
+                    ? root.color.with-alpha(0.30)
+                    : touch.has-hover
+                    ? root.color.with-alpha(0.60)
+                    : root.color.with-alpha(0.40);
+
+                background: touch.pressed
+                    ? @linear-gradient(180deg, root.color.with-alpha(0.15) 0%, root.color.with-alpha(0.25) 100%)
+                    : touch.has-hover
+                    ? @linear-gradient(180deg, root.color.with-alpha(0.48) 0%, root.color.with-alpha(0.32) 100%)
+                    : @linear-gradient(180deg, root.color.with-alpha(0.38) 0%, root.color.with-alpha(0.20) 100%);
+
+                animate background, border-color {
+                    duration: 100ms;
+                    easing: ease-out;
+                }
+                animate y { duration: 40ms; }
+
+                touch := TouchArea {
+                    clicked => { root.on-click() }
+                    mouse-cursor: pointer;
+                }
+            }
         }
 
-        Text {
-            color: root.text_color;
-            font-size: 12px;
-            text: root.text;
-            horizontal-alignment: center;
+        HorizontalLayout {
+            alignment: center;
+            Image {
+                source: image;
+                colorize: root.color;
+                width: 100%;
+                height: 24px;
+            }
         }
     }
 }
 
+
 component Controls {
     in property <bool> is-playing;
     in property <color> text_color;
+    in property <bool> is_dark: true;
 
     callback play_pause();
     callback next();
@@ -39,22 +79,25 @@ component Controls {
         spacing: 16px;
 
         ControlButton {
-            text: root.is-playing ? "Pause" : "Play";
-            text_color: root.text_color;
+            image: root.is-playing ? Icons.pause : Icons.play;
+            color: root.text_color;
+            is_dark: root.is_dark;
             on-click => { root.play_pause() }
         }
 
         Rectangle { }
 
         ControlButton {
-            text: "Prev";
-            text_color: root.text_color;
+            image: Icons.back;
+            color: root.text_color;
+            is_dark: root.is_dark;
             on-click => { root.prev() }
         }
 
         ControlButton {
-            text: "Next";
-            text_color: root.text_color;
+            image: Icons.forward;
+            color: root.text_color;
+            is_dark: root.is_dark;
             on-click => { root.next() }
         }
     }
@@ -149,6 +192,7 @@ export component CompactVinylPlayer inherits BaseSkin {
 
             Controls {
                 text_color: root.media_data.on_dominant_color;
+                is_dark: root.media_data.is_dark;
                 is-playing: root.media_data.is-playing;
                 play_pause => { root.play_pause() }
                 next => { root.next() }

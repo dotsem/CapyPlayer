@@ -1,8 +1,8 @@
 export global IconRegistry {
-    out property <image> play: @image-url("../assets/icons/play.svg");
-    out property <image> pause: @image-url("../assets/icons/pause.svg");
-    out property <image> back: @image-url("../assets/icons/back.svg");
-    out property <image> forward: @image-url("../assets/icons/forward.svg");
+    out property <image> play: @image-url("./assets/icons/play.svg");
+    out property <image> pause: @image-url("./assets/icons/pause.svg");
+    out property <image> back: @image-url("./assets/icons/back.svg");
+    out property <image> forward: @image-url("./assets/icons/forward.svg");
 
     pure public function get_icon(name: string) -> image {
         if (name == "play") {
