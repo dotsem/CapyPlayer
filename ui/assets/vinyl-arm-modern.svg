@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="100%" height="100%">
+  <defs>
+    <!-- Darker Gunmetal / Smoked Chrome Tube Gradient -->
+    <linearGradient id="modDarkGunmetal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8F949F" />
+      <stop offset="20%" stop-color="#B0B5C0" />
+      <stop offset="45%" stop-color="#555963" />
+      <stop offset="75%" stop-color="#34373E" />
+      <stop offset="100%" stop-color="#1E2025" />
+    </linearGradient>
+
+    <!-- Blocky Gimbal Gradients -->
+    <linearGradient id="modGimbalBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2E323A" />
+      <stop offset="50%" stop-color="#1E2025" />
+      <stop offset="100%" stop-color="#121316" />
+    </linearGradient>
+
+    <linearGradient id="modGimbalFacet" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#484D58" />
+      <stop offset="100%" stop-color="#1C1E23" />
+    </linearGradient>
+
+    <linearGradient id="modGimbalTopPlate" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3A3E48" />
+      <stop offset="50%" stop-color="#282B32" />
+      <stop offset="100%" stop-color="#1B1C21" />
+    </linearGradient>
+
+    <!-- Blocky Headshell Gradients -->
+    <linearGradient id="modHeadBlockTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#343842" />
+      <stop offset="50%" stop-color="#23262D" />
+      <stop offset="100%" stop-color="#16181C" />
+    </linearGradient>
+
+    <linearGradient id="modHeadBlockSide" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#181A1E" />
+      <stop offset="100%" stop-color="#0E0F12" />
+    </linearGradient>
+
+    <linearGradient id="modStylusRed" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E53935" />
+      <stop offset="60%" stop-color="#C62828" />
+      <stop offset="100%" stop-color="#7F0000" />
+    </linearGradient>
+
+    <filter id="modArmShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="3" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- ROTATING TONEARM ASSEMBLY (Pivot at 200, 200) -->
+  <g id="modern-tonearm">
+    <!-- COUNTERWEIGHT (Rear / Left side) -->
+    <!-- Dark Stub Shaft -->
+    <rect x="70" y="194.5" width="105" height="11" rx="2" fill="url(#modDarkGunmetal)" stroke="#1A1C20" stroke-width="0.8" />
+    
+    <!-- Blocky Counterweight Barrel -->
+    <rect x="80" y="176" width="52" height="48" rx="3" fill="#1C1E23" stroke="#0E0F12" stroke-width="1.2" />
+    <rect x="83" y="178" width="46" height="44" rx="2" fill="none" stroke="#3A3E47" stroke-width="0.8" opacity="0.4" />
+    <!-- Rear end cap -->
+    <rect x="74" y="181" width="8" height="38" rx="2" fill="#2B2E36" stroke="#121316" stroke-width="0.8" />
+    <!-- Scale ring indicator -->
+    <rect x="124" y="176" width="10" height="48" fill="#2E323A" stroke="#121315" stroke-width="0.8" />
+    <line x1="127" y1="179" x2="127" y2="221" stroke="#8E94A0" stroke-width="0.75" stroke-dasharray="2,3" />
+
+    <!-- MAIN DARK TUBE -->
+    <g filter="url(#modArmShadow)">
+      <!-- Straight Arm Tube (Dark Gunmetal) -->
+      <path d="M 170,194.5 L 655,194.5 C 663,194.5 670,197 677,201.5 L 706,218 L 700,227 L 669,209.5 C 664,206.5 659,204.5 653,204.5 L 170,204.5 Z" fill="url(#modDarkGunmetal)" stroke="#23262D" stroke-width="0.8" />
+      <!-- Subtle Specular Reflection along dark tube -->
+      <line x1="172" y1="196" x2="655" y2="196" stroke="#D0D5E0" stroke-width="1.2" opacity="0.65" />
+      <path d="M 655,196 C 661,196 667,198 673,202 L 702,220" fill="none" stroke="#D0D5E0" stroke-width="1.0" opacity="0.6" />
+    </g>
+
+    <!-- BLOCKY GIMBAL HOUSING (Centered at 200, 200) -->
+    <!-- Lower pivot carriage bracket -->
+    <rect x="160" y="188" width="80" height="24" rx="4" fill="#141619" stroke="#0B0C0E" stroke-width="1" />
+    
+    <!-- Main Angular Gimbal Block (Faceted Hexagonal / Chamfered Box) -->
+    <polygon points="168,177 232,177 244,190 244,210 232,223 168,223 156,210 156,190" fill="url(#modGimbalBody)" stroke="#111215" stroke-width="1.5" />
+    <!-- Chamfered edge facets -->
+    <polygon points="170,179 230,179 240,190 160,190" fill="url(#modGimbalFacet)" />
+    <polygon points="160,210 240,210 230,221 170,221" fill="#15171B" />
+    <polygon points="158,191 169,179 170,221 158,209" fill="#25282F" />
+    <polygon points="242,191 231,179 230,221 242,209" fill="#181A1D" />
+
+    <!-- Raised Rectangular Block on Gimbal Top (As seen in reference photo) -->
+    <rect x="175" y="185" width="50" height="30" rx="3" fill="url(#modGimbalTopPlate)" stroke="#111316" stroke-width="1" />
+    <line x1="177" y1="187" x2="223" y2="187" stroke="#5A606D" stroke-width="0.8" opacity="0.6" />
+
+    <!-- Center Pivot Bearing Cap (200, 200) -->
+    <circle cx="200" cy="200" r="10" fill="#16181C" stroke="#33373F" stroke-width="1" />
+    <circle cx="200" cy="200" r="6" fill="#2B2E36" stroke="#101114" stroke-width="0.8" />
+    <circle cx="200" cy="200" r="2" fill="#0D0E10" />
+
+    <!-- BLOCKY HEAD SECTION (Angled Collar, Geometric Shell & Blocky Finger Lift) -->
+    <g transform="translate(702, 223) rotate(24)">
+      <!-- Blocky Connector Sleeve / Collar -->
+      <rect x="-4" y="-9" width="15" height="18" rx="2" fill="#1C1E23" stroke="#0D0E10" stroke-width="1" />
+      <line x1="0" y1="-8" x2="0" y2="8" stroke="#383C44" stroke-width="1" />
+      <line x1="4" y1="-8" x2="4" y2="8" stroke="#383C44" stroke-width="1" />
+
+      <!-- Blocky Headshell Body (Angular Boxy Shell) -->
+      <!-- Main shell profile: straight lines, beveled front nose -->
+      <polygon points="10,-14 74,-14 84,-6 84,14 74,20 10,16" fill="url(#modHeadBlockTop)" stroke="#121316" stroke-width="1.2" />
+      
+      <!-- Top flat panel bevel highlight -->
+      <polygon points="12,-12.5 72,-12.5 81,-5.5 81,12 72,17.5 12,14" fill="#22252C" stroke="#3E434D" stroke-width="0.8" />
+      <line x1="13" y1="-12" x2="71" y2="-12" stroke="#686F7D" stroke-width="1" opacity="0.6" />
+      
+      <!-- Cartridge Under-body (Blocky black module) -->
+      <rect x="25" y="-5" width="58" height="20" rx="1.5" fill="url(#modHeadBlockSide)" stroke="#0B0C0E" stroke-width="1" />
+
+      <!-- Cartridge Mount Screws / Indents -->
+      <rect x="36" y="-1" width="5" height="5" rx="1" fill="#121316" stroke="#3E424B" stroke-width="0.8" />
+      <rect x="56" y="-1" width="5" height="5" rx="1" fill="#121316" stroke="#3E424B" stroke-width="0.8" />
+
+      <!-- Iconic Red Stylus Front Block (Blocky Crosley / Ceramic Stylus Tip) -->
+      <polygon points="68,-2 86,-2 92,4 90,16 68,16" fill="url(#modStylusRed)" stroke="#4A0606" stroke-width="0.8" />
+      <!-- Red block highlight bevel -->
+      <line x1="69" y1="0" x2="85" y2="0" stroke="#FF8A80" stroke-width="0.8" opacity="0.8" />
+      <!-- Needle Guard & Stylus Point -->
+      <polygon points="88,6 94,9 88,12" fill="#141518" />
+      <line x1="91" y1="9" x2="96" y2="10.5" stroke="#DDE0E6" stroke-width="0.8" />
+
+      <!-- Blocky Finger Lift Tab (Molded Angular Plastic Tab as in Reference Photo) -->
+      <!-- Originates from side of headshell, angled outward and forward -->
+      <polygon points="46,-14 54,-28 72,-36 82,-33 70,-14" fill="#202329" stroke="#101113" stroke-width="1" />
+      <!-- Tab top bevel highlight -->
+      <polygon points="49,-15 55,-26 70,-33 78,-31 68,-15" fill="#2E323A" />
+      <line x1="55" y1="-26" x2="77" y2="-31" stroke="#5E6573" stroke-width="1" opacity="0.7" />
+    </g>
+  </g>
+</svg>

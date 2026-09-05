@@ -1,9 +1,10 @@
 import { Calc } from "../func/calc.slint";
 
-struct PlayerHeadAngles {
+struct VinylArmAngles {
     min: angle,
     max: angle,
     resting: angle,
+    base: angle,
 }
 
 // A rather complex component
@@ -12,7 +13,7 @@ export component VinylArm {
     in property <bool> is_playing;
     in property <float> position_secs;
     in property <float> length_secs;
-    in property <PlayerHeadAngles> angles;
+    in property <VinylArmAngles> angles;
 
     in property <length> arm_x;
     in property <length> arm_y;
@@ -22,6 +23,9 @@ export component VinylArm {
     in property <image> vinyl-arm-base;
     in property <image> vinyl-arm;
 
+    private property <length> transform_origin_x: root.arm_width * (200.0 / 900.0);
+    private property <length> transform_origin_y: root.arm_height * 0.5;
+
     Image {
         source: root.vinyl-arm-base;
         height: root.arm_height;
@@ -29,6 +33,12 @@ export component VinylArm {
         x: root.arm_x;
         y: root.arm_y;
         image-fit: contain;
+        transform-rotation: root.angles.base;
+
+        transform-origin: {
+            x: root.transform_origin_x,
+            y: root.transform_origin_y,
+        };
     }
 
     @children
@@ -52,8 +62,8 @@ export component VinylArm {
         transform-rotation: head-angle;
 
         transform-origin: {
-            x: self.width * (200.0 / 900.0),
-            y: self.height * 0.5,
+            x: root.transform_origin_x,
+            y: root.transform_origin_y,
         };
     }
 }

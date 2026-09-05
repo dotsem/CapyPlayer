@@ -1,0 +1,189 @@
+import { BaseSkin } from "../base-skin.slint";
+import { VinylArm } from "../../components/vinyl-arm.slint";
+import { Vinyl } from "../../components/vinyl.slint";
+
+component Controls inherits HorizontalLayout {
+    spacing: 12px;
+    alignment: center;
+    width: self.preferred-width;
+    height: 38px;
+
+    in property <bool> is-playing;
+    callback play-pause();
+
+    VerticalLayout {
+        alignment: center;
+
+        Rectangle {
+            width: 16px;
+            height: 16px;
+            border-radius: self.width / 2;
+            background: @linear-gradient(135deg, #6c7078 0%, #1e2024 50%, #828791 100%);
+            border-width: 1px;
+            border-color: #121316;
+
+            Rectangle {
+                width: 12px;
+                height: 12px;
+                border-radius: self.width / 2;
+                background: #0d0e11;
+
+                Rectangle {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: self.width / 2;
+
+                    background: root.is-playing
+                        ? @radial-gradient(circle, #ff3164 0%, #ec153f 55%, #c50e31 100%)
+                        : @radial-gradient(circle, #521818 0%, #2b0b0b 70%, #150505 100%);
+
+                    drop-shadow-blur: root.is-playing ? 8px : 0px;
+                    drop-shadow-color: root.is-playing ? #ff3164cc : transparent;
+
+                    animate background, drop-shadow-blur, drop-shadow-color {
+                        duration: 300ms;
+                        easing: ease-out;
+                    }
+
+                    Rectangle {
+                        x: 2px;
+                        y: 1.5px;
+                        width: 3px;
+                        height: 2px;
+                        border-radius: 1px;
+                        background: #ffffff90;
+                    }
+                }
+            }
+        }
+    }
+
+    VerticalLayout {
+        alignment: center;
+
+        Rectangle {
+            width: 36px;
+            height: 36px;
+            border-radius: self.width / 2;
+            background: @linear-gradient(180deg, #101114 0%, #2a2c33 100%);
+            border-width: 1px;
+            border-color: #0a0b0d;
+
+            button := Rectangle {
+                width: 30px;
+                height: 30px;
+                border-radius: self.width / 2;
+                x: (parent.width - self.width) / 2;
+                y: touch.pressed ? (parent.height - self.height) / 2 + 1.5px : (parent.height - self.height) / 2;
+
+                background: touch.pressed
+                    ? @linear-gradient(180deg, #1e2025 0%, #282a30 100%)
+                    : touch.has-hover
+                    ? @linear-gradient(180deg, #444853 0%, #2c2f37 60%, #1f2127 100%)
+                    : @linear-gradient(180deg, #383c46 0%, #26282f 60%, #1b1c21 100%);
+
+                border-width: 1.5px;
+                border-color: touch.pressed ? #1c1d22 : #555964;
+
+                drop-shadow-offset-y: touch.pressed ? 1px : 3px;
+                drop-shadow-blur: touch.pressed ? 2px : 5px;
+                drop-shadow-color: #000000a0;
+
+                animate y, background, border-color, drop-shadow-offset-y, drop-shadow-blur {
+                    duration: 70ms;
+                    easing: ease-out;
+                }
+
+                touch := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.play-pause() }
+                }
+            }
+        }
+    }
+}
+
+
+
+component Body inherits Rectangle {
+    in property <bool> is-playing;
+
+    callback play-pause();
+
+    border-color: #00000050;
+    border-width: 2px;
+
+    drop-shadow-offset-y: -5px;
+    drop-shadow-offset-x: -5px;
+    drop-shadow-blur: 8px;
+    drop-shadow-color: #000000a7;
+
+    Image {
+        width: root.width - root.border-width * 2;
+        height: root.height - root.border-width * 2;
+
+        x: root.border-width;
+        y: root.border-width;
+
+        image-fit: cover;
+
+        source: @image-url("../../assets/dark-wood-texture.jpg");
+    }
+
+    Controls {
+        is-playing: root.is-playing;
+        x: root.width - self.width - 24px;
+        y: root.height - self.height - 12px;
+
+        play-pause => { root.play-pause() }
+    }
+}
+
+export component RealisticVinylPlayer inherits BaseSkin {
+    Body {
+        is-playing: root.media_data.is-playing;
+
+        width: root.width - 20px;
+        height: root.height - 20px;
+
+        x: 20px;
+        y: 20px;
+
+        play-pause => { root.play_pause() }
+    }
+
+    VinylArm {
+
+        width: 100%;
+        height: 100%;
+
+        arm_x: root.width - 140px;
+        arm_y: -102px;
+        arm_height: root.height * 0.9;
+        arm_width: self.arm_height;
+
+        angles: {
+            min: 98.0deg,
+            max: 121.0deg,
+            resting: 90deg,
+            base: 90deg,
+        };
+
+        is_playing: root.media_data.is-playing;
+        position_secs: root.position-secs;
+        length_secs: root.media_data.length-secs;
+
+        vinyl-arm-base: @image-url("../../assets/vinyl-arm-modern-base.svg");
+        vinyl-arm: @image-url("../../assets/vinyl-arm-modern.svg");
+
+        Vinyl {
+            x: 0;
+            y: 0;
+            width: self.height;
+            height: 95%;
+
+            album_art: root.media_data.album-art;
+            vinyl_angle: root.animation_state.vinyl-angle;
+        }
+    }
+}

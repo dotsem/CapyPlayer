@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="modTowerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0" stop-color="#2D3037"></stop>
+      <stop offset="0.5" stop-color="#1E2026"></stop>
+      <stop offset="1" stop-color="#141518"></stop>
+    </linearGradient>
+    <linearGradient id="modDarkMetal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0" stop-color="#40444E"></stop>
+      <stop offset="0.5" stop-color="#272A32"></stop>
+      <stop offset="1" stop-color="#181A1F"></stop>
+    </linearGradient>
+    <linearGradient id="modLeverChrome" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0" stop-color="#D5D9E2"></stop>
+      <stop offset="0.4" stop-color="#8F94A0"></stop>
+      <stop offset="1" stop-color="#4C4F57"></stop>
+    </linearGradient>
+    <filter id="modPlateShadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="3" dy="5" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"></feDropShadow>
+    </filter>
+  </defs>
+  <g id="modern-base">
+    <path d="M 112.309 400 L 112.309 134.879 C 112.309 127.239 119.73 121.126 129.005 121.126 L 573.304 121.126 C 582.58 121.126 590 127.239 590 134.879 L 590 400 L 112.309 400 Z" fill="#1A1C21" stroke="#2B2F38" stroke-width="1.5" filter="url(#modPlateShadow)" style=""></path>
+    <path d="M 112.987 400 L 112.987 134.182 C 112.987 127.287 119.952 121.542 128.311 121.542 L 573.176 121.542 C 581.534 121.542 588.5 127.287 588.5 134.182 L 588.5 400" fill="none" stroke="#3E434F" stroke-width="0.8" opacity="0.4" style=""></path>
+    <circle cx="567" cy="380" r="3.5" fill="#2A2D35" stroke="#121316" stroke-width="0.8"></circle>
+    <circle cx="567" cy="380" r="1.5" fill="#141518"></circle>
+    <path d="M 263.539 121.611 C 298.539 196.611 308.539 286.611 283.539 386.611 C 268.539 436.611 233.539 476.611 213.539 486.611" fill="none" stroke="#0D0E11" stroke-width="5" opacity="0.5"></path>
+    <path d="M 262.951 121.664 C 297.951 196.664 307.951 286.664 282.951 386.664 C 267.951 436.664 232.951 476.664 212.951 486.664" fill="none" stroke="#2B2F38" stroke-width="1.2" opacity="0.3"></path>
+    <g transform="matrix(1, 0, 0, 1, 290.520111, 121.951881)">
+      <rect x="0" y="0" width="140" height="36" rx="6" fill="#131417" stroke="#23262D" stroke-width="1.2"></rect>
+      <rect x="1.5" y="1.5" width="137" height="33" rx="5" fill="none" stroke="#2F333C" stroke-width="0.7" opacity="0.5"></rect>
+      <rect x="15" y="14.5" width="110" height="7" rx="3.5" fill="#0A0B0D" stroke="#1C1E24" stroke-width="0.8"></rect>
+      <line x1="28" y1="8" x2="28" y2="12" stroke="#686E7B" stroke-width="1.2"></line>
+      <circle cx="28" cy="27" r="1.5" fill="#585D6A"></circle>
+      <line x1="70" y1="8" x2="70" y2="12" stroke="#686E7B" stroke-width="1.2"></line>
+      <circle cx="70" cy="27" r="1.5" fill="#585D6A"></circle>
+      <line x1="112" y1="8" x2="112" y2="12" stroke="#686E7B" stroke-width="1.2"></line>
+      <circle cx="112" cy="27" r="1.5" fill="#585D6A"></circle>
+      <rect x="20" y="7" width="16" height="22" rx="2.5" fill="url(#modDarkMetal)" stroke="#0E0F12" stroke-width="0.8"></rect>
+      <line x1="28" y1="9" x2="28" y2="27" stroke="#686E7B" stroke-width="1"></line>
+    </g>
+    <g transform="translate(242, 168) rotate(18)">
+      <rect x="-2" y="-38" width="4" height="38" rx="1.5" fill="url(#modLeverChrome)" stroke="#23262D" stroke-width="0.5"></rect>
+      <rect x="-4" y="-42" width="8" height="16" rx="2" fill="#131417" stroke="#090A0C" stroke-width="0.8"></rect>
+      <line x1="-3" y1="-37" x2="3" y2="-37" stroke="#32363F" stroke-width="1"></line>
+      <line x1="-3" y1="-33" x2="3" y2="-33" stroke="#32363F" stroke-width="1"></line>
+      <path d="M -16,-6 C -6,-14 8,-14 16,-6" fill="none" stroke="#111215" stroke-width="5" stroke-linecap="round"></path>
+      <path d="M -16,-6 C -6,-14 8,-14 16,-6" fill="none" stroke="#383C45" stroke-width="2" stroke-linecap="round"></path>
+    </g>
+    <circle cx="200" cy="200" r="56" fill="url(#modTowerGrad)" stroke="#0E0F12" stroke-width="2"></circle>
+    <circle cx="200" cy="200" r="55" fill="none" stroke="#3A3E48" stroke-width="0.8" opacity="0.4"></circle>
+    <circle cx="200" cy="200" r="42" fill="#15171B" stroke="#272A32" stroke-width="1.5"></circle>
+    <circle cx="200" cy="200" r="32" fill="url(#modDarkMetal)" stroke="#0D0E10" stroke-width="1"></circle>
+    <circle cx="200" cy="200" r="30" fill="none" stroke="#3E434F" stroke-width="0.6" opacity="0.4"></circle>
+  </g>
+</svg>

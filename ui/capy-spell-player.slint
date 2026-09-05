@@ -1,4 +1,3 @@
-import { VerticalBox, Button } from "std-widgets.slint";
 import { CapyPlayer } from "capy-player.slint";
 import { MediaData } from "models/media-data.slint";
 import { AnimationState } from "models/animation-state.slint";
@@ -8,6 +7,9 @@ import {
     CompactVinylPlayer,
 } from "skins/compact-vinyl-player/compact-vinyl-player.slint";
 import { VinylCard } from "skins/vinyl-card/vinyl-card.slint";
+import {
+    RealisticVinylPlayer,
+} from "skins/realistic-vinyl-player/realistic-vinyl-player.slint";
 
 
 export { SkinRegistry, SkinConfig, AnimationState, IconRegistry, Icons }
@@ -18,14 +20,14 @@ export component CapySpellPlayer inherits Window {
         album: "Whenever You Need Somebody",
         length_secs: 200,
         position-secs: 0,
-        is_playing: true,
+        is_playing: false,
         has_media: false,
         text_color: #000000,
         dominant_color: #0000ff,
         on_dominant_color: #ffffff,
         is_dark: false
     };
-    in-out property <float> position_secs: 200;
+    in-out property <float> position_secs: 0;
     in-out property <float> vinyl_angle: 0.0;
     in-out property <float> animation_phase: 0.0;
     in-out property <[float]> visualizer_bars: [0.0, 0.0, 0.0, 0.0];
@@ -36,7 +38,7 @@ export component CapySpellPlayer inherits Window {
         bars: root.visualizer_bars,
     };
 
-    in property <string> skin: "compact-vinyl-player";
+    in property <string> skin: "realistic-vinyl-player";
 
     out property <SkinConfig> current_skin: SkinRegistry.get_config(root.skin);
     out property <bool> visualizer_active;
@@ -60,6 +62,15 @@ export component CapySpellPlayer inherits Window {
         next => { root.next() }
         prev => { root.prev() }
     }
+    if (root.skin.to-lowercase() == "realistic-vinyl-player"): 
+     
+        RealisticVinylPlayer {
+        media_data: root.media_data;
+        position_secs: root.position_secs;
+        animation_state: root.animation_state;
+        play_pause => { root.play_pause() }
+    }
+
     if (root.skin.to-lowercase() == "vinyl-card"): 
     VinylCard {
         media_data: root.media_data;
