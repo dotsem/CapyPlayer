@@ -33,6 +33,7 @@ export component VinylArm {
         x: root.arm_x;
         y: root.arm_y;
         image-fit: contain;
+        cache-rendering-hint: true;
         transform-rotation: root.angles.base;
 
         transform-origin: {
@@ -43,14 +44,31 @@ export component VinylArm {
 
     @children
 
-    private property <angle> head-angle: root.is-playing
-        ? Calc.linear-interpolation(root.position_secs, 0.0, root.length_secs, root.angles.min / 1deg, root.angles.max / 1deg) * 1deg
-        : root.angles.resting;
+    private property <angle> playing-angle: Calc.linear-interpolation(
+        root.position_secs, 0.0, root.length_secs, root.angles.min / 1deg, root.angles.max / 1deg) * 1deg;
 
-    animate head-angle {
-        duration: 400ms;
-        easing: ease-out;
-    }
+    private property <angle> head-angle: root.angles.resting;
+
+    states [
+        playing when root.is-playing: {
+            head-angle: root.playing-angle;
+            in {
+                animate head-angle {
+                    duration: 400ms;
+                    easing: ease-out;
+                }
+            }
+        }
+        resting when !root.is-playing: {
+            head-angle: root.angles.resting;
+            in {
+                animate head-angle {
+                    duration: 400ms;
+                    easing: ease-out;
+                }
+            }
+        }
+    ]
 
     Image {
         source: root.vinyl-arm;
