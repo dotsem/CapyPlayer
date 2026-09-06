@@ -55,4 +55,8 @@ impl PlaybackMotion {
             activity,
         }
     }
+
+    pub fn is_moving(&self) -> bool {
+        self.velocity_deg_s > 0.001
+    }
 }

@@ -138,7 +138,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let timer = slint::Timer::default();
     timer.start(
         slint::TimerMode::Repeated,
-        std::time::Duration::from_millis(25),
+        // 30 fps
+        std::time::Duration::from_millis(33), // TODO: test different fps
         move || {
             if let Some(ui) = ui_weak_timer.upgrade() {
                 capy_player::visualizer::set_active(ui.get_visualizer_active());
@@ -208,11 +209,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 let server = server_state_for_timer.borrow().clone();
-                let motion = motion_clone
-                    .borrow_mut()
-                    .update(server.has_media && server.is_playing);
-                ui.set_vinyl_angle(motion.angle_deg);
-                ui.set_animation_phase(motion.phase);
+                let (frame, should_update_angle) = {
+                    let mut motion = motion_clone.borrow_mut();
+                    let was_moving = motion.is_moving();
+                    let frame = motion.update(server.has_media && server.is_playing);
+                    let is_moving = motion.is_moving();
+                    (frame, is_moving || was_moving)
+                };
+
+                if should_update_angle {
+                    ui.set_vinyl_angle(frame.angle_deg);
+                    ui.set_animation_phase(frame.phase);
+                }
 
                 if !server.has_media {
                     return;
@@ -244,7 +252,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 };
 
                 let last_pos = *last_pos_clone.borrow();
-                let position_changed = (new_position - last_pos).abs() > 0.01;
+                let position_changed = (new_position - last_pos).abs() > 0.25;
 
                 if position_changed {
                     *last_pos_clone.borrow_mut() = new_position;

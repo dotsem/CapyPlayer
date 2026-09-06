@@ -55,6 +55,7 @@ async fn run_cava_loop() -> Result<(), Box<dyn std::error::Error>> {
     let mut frame_count: u64 = 0;
     while let Some(values) = stream.next().await {
         if !is_active() {
+            tokio::time::sleep(std::time::Duration::from_millis(250)).await;
             continue;
         }
 

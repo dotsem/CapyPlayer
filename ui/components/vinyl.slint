@@ -45,13 +45,7 @@ export component Vinyl {
     Image {
         width: 100%;
         height: self.width;
-        source: @image-url("../assets/vinyl.svg");
-        transform-rotation: root.vinyl_angle * 1deg;
-    }
-
-    Image {
-        width: 100%;
-        height: self.width;
-        source: @image-url("../assets/vinyl-glare.svg");
+        cache-rendering-hint: true;
+        source: @image-url("../assets/vinyl-combined.png");
     }
 }
