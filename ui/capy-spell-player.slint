@@ -1,16 +1,8 @@
 import { CapyPlayer } from "capy-player.slint";
 import { MediaData } from "models/media-data.slint";
 import { AnimationState } from "models/animation-state.slint";
-import { SkinRegistry, SkinConfig } from "skins/skin_registry.slint";
+import { SkinRegistry, SkinConfig, SkinHost } from "skins/generated_skins.slint";
 import { IconRegistry, Icons } from "icon_registry.slint";
-import {
-    CompactVinylPlayer,
-} from "skins/compact-vinyl-player/compact-vinyl-player.slint";
-import { VinylCard } from "skins/vinyl-card/vinyl-card.slint";
-import {
-    RealisticVinylPlayer,
-} from "skins/realistic-vinyl-player/realistic-vinyl-player.slint";
-
 
 export { SkinRegistry, SkinConfig, AnimationState, IconRegistry, Icons }
 export component CapySpellPlayer inherits Window {
@@ -52,8 +44,8 @@ export component CapySpellPlayer inherits Window {
     height: root.current_skin.height;
     background: transparent;
 
-    if (root.skin.to-lowercase() == "compact-vinyl-player"): 
-    CompactVinylPlayer {
+    SkinHost {
+        skin: root.skin;
         media_data: root.media_data;
         position_secs: root.position_secs;
         animation_state: root.animation_state;
@@ -61,22 +53,7 @@ export component CapySpellPlayer inherits Window {
         play_pause => { root.play_pause() }
         next => { root.next() }
         prev => { root.prev() }
-    }
-    if (root.skin.to-lowercase() == "realistic-vinyl-player"): 
-     
-        RealisticVinylPlayer {
-        media_data: root.media_data;
-        position_secs: root.position_secs;
-        animation_state: root.animation_state;
-        play_pause => { root.play_pause() }
-    }
-
-    if (root.skin.to-lowercase() == "vinyl-card"): 
-    VinylCard {
-        media_data: root.media_data;
-        position_secs: root.position_secs;
-        animation_state: root.animation_state;
-
+        seek(val) => { root.seek(val) }
         visualizer_toggled(active) => {
             root.visualizer_active = active;
         }

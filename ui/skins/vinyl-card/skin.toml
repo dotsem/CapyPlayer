@@ -1,0 +1,4 @@
+width = "500px"
+height = "150px"
+border_radius = "16px"
+transparent_background = true
