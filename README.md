@@ -40,15 +40,9 @@ Each skin receives:
 - Standard callbacks for transport controls (`play_pause`, `next`, `prev`, `seek`).
 
 ### Creating a New Skin
-1. Create a new directory in `ui/skins/<skin-name>/`.
-2. Implement your component conforming to the properties and callbacks defined in `ui/skins/base-skin.slint`.
-3. Register the skin dimensions and configuration in `ui/skins/skin_registry.slint`.
-4. Export and instantiate your component in `ui/capy-spell-player.slint`.
 
-Skin contributions and theme submissions are always welcome. Feel free to open a pull request with your custom skins.
 
->[!NOTE]
-> Skin registration will be more streamlined in the future.
+Refer to [Adding a New Skin](#adding-a-new-skin) under Contributing for the full specification.
 
 ---
 
@@ -145,9 +139,63 @@ Contributions are always welcomed! Please adhere to the following development st
 2. **Formatting & Linting**:
    ```bash
    cargo fmt --check
+   cargo clippy
    ```
 3. **Slint Layouts**: Ensure all Slint files conform to atomic component structures and reuse models defined in `ui/models/`.
 4. **Pull Requests**: Provide detailed descriptions and attach screenshots or GIFs for any UI or skin modifications.
+
+### Adding a New Skin
+
+Skins are auto-registered by the build system. Adding a new skin does not require modifying core player files.
+
+1. **Create Directory**:
+   Create a new directory in `ui/skins/<skin-name>/` using kebab-case (e.g., `ui/skins/retro-cassette/`).
+
+2. **Define Manifest (`skin.toml`)**:
+   Add a `skin.toml` file to declare window dimensions and window properties:
+   ```toml
+   width = "350px"
+   height = "220px"
+   border_radius = "12px"
+   transparent_background = true
+   ```
+   *Supported fields*:
+   * `width` (length, e.g. `"300px"`)
+   * `height` (length, e.g. `"200px"`)
+   * `border_radius` (length, optional, defaults to `"0px"`)
+   * `border_top_left_radius`, `border_top_right_radius`, `border_bottom_left_radius`, `border_bottom_right_radius` (length, optional)
+   * `transparent_background` (bool, optional, defaults to `false`)
+   * `id` (string, optional, defaults to folder name)
+   * `component` (string, optional, defaults to PascalCase of folder name)
+   * `file` (string, optional, defaults to `<skin-name>.slint`)
+
+3. **Implement Component (`<skin-name>.slint`)**:
+   Create the primary `.slint` file inheriting `BaseSkin` from `../base-skin.slint`:
+   ```slint
+   import { BaseSkin } from "../base-skin.slint";
+
+   export component RetroCassette inherits BaseSkin {
+       // Inherited properties:
+       // - media_data: MediaData
+       // - position_secs: float
+       // - animation_state: AnimationState
+       //
+       // Inherited callbacks:
+       // - play_pause(), next(), prev(), seek(float), visualizer_toggled(bool)
+   }
+   ```
+
+4. **Test**:
+   Run the player (the build script will automatically detect and register the skin):
+   ```bash
+   cargo run
+   ```
+
+   (Optional) If using the Slint LSP or live preview, regenerate the Slint definitions with 
+   ```bash
+   cargo run --bin generate-skins
+   ```
+   
 
 ---
 
