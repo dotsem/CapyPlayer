@@ -1,11 +1,12 @@
 use capy_config::ConfigStore;
 use config::Settings;
+use display_info::DisplayInfo;
 use slint::{ComponentHandle, SharedString};
 use spell_framework::{
-    self, cast_spell,
+    self,
     layer_properties::{LayerAnchor, LayerType, WindowConf},
 };
-use std::{cell::RefCell, error::Error, rc::Rc, sync::mpsc, time::Instant};
+use std::{cell::RefCell, error::Error, rc::Rc, sync::mpsc, time::Instant, vec};
 
 slint::include_modules!();
 spell_framework::generate_widgets![CapySpellPlayer];
@@ -71,22 +72,42 @@ fn apply_skin_and_layout(ui: &CapySpellPlayer, settings: &Settings) {
     capy_player::mpris::set_blur_album_size(max_dim);
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
-    log::info!("Initializing capy-spell-player...");
-    log::info!("Slint backend: {:?}", std::env::var("SLINT_BACKEND"));
-
-    let window_conf = WindowConf::builder()
+fn construct_monitor(name: String) -> WindowConf {
+    WindowConf::builder()
         .width(WINDOW_WIDTH)
         .height(WINDOW_HEIGHT)
         .anchor_1(LayerAnchor::BOTTOM)
         .anchor_2(LayerAnchor::RIGHT)
         .margins(5, 0, 0, 10)
         .layer_type(LayerType::Bottom)
+        .monitor(name)
         .build()
-        .unwrap();
+        .unwrap()
+}
 
-    let ui = CapySpellPlayerSpell::invoke_spell("capy-player", window_conf);
+fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    log::info!("Initializing capy-spell-player...");
+    log::info!("Slint backend: {:?}", std::env::var("SLINT_BACKEND"));
+    let displays = DisplayInfo::all();
+
+    let mut window_configs = vec![];
+
+    match displays {
+        Ok(ds) => {
+            for d in ds {
+                window_configs.push(construct_monitor(d.name));
+            }
+        }
+        Err(err) => {
+            log::error!("Failed to get display information: {}", err);
+        }
+    }
+
+    let spells = window_configs
+        .iter()
+        .map(|w| CapySpellPlayerSpell::invoke_spell("capy-player", w.clone()))
+        .collect::<Vec<_>>();
 
     let config_store = match ConfigStore::<Settings>::open("capy-player") {
         Ok(store) => store,
@@ -96,21 +117,30 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    apply_skin_and_layout(&ui, &config_store.get());
+    let current_settings = config_store.get();
+    for spell in &spells {
+        apply_skin_and_layout(&spell.ui, &current_settings);
+    }
 
-    let ui_weak_cfg = ui.as_weak();
+    let spell_weaks = spells.iter().map(|s| s.as_weak()).collect::<Vec<_>>();
     config_store.on_change(move |new_settings| {
-        let _ = ui_weak_cfg.upgrade_in_event_loop(move |ui| {
-            apply_skin_and_layout(&ui, &new_settings);
-        });
+        for weak in &spell_weaks {
+            let new_settings = new_settings.clone();
+            let _ = weak.upgrade_in_event_loop(move |ui| {
+                apply_skin_and_layout(&ui, &new_settings);
+            });
+        }
     });
 
-    let ui_weak_vis = ui.as_weak();
+    let spell_weaks = spells.iter().map(|s| s.as_weak()).collect::<Vec<_>>();
     capy_player::events::register_visualizer_listener(move |bars| {
-        let _ = ui_weak_vis.upgrade_in_event_loop(move |ui| {
-            let model: Rc<slint::VecModel<f32>> = Rc::new(slint::VecModel::from(bars));
-            ui.set_visualizer_bars(slint::ModelRc::from(model));
-        });
+        for weak in &spell_weaks {
+            let bars = bars.clone();
+            let _ = weak.upgrade_in_event_loop(move |ui| {
+                let model: Rc<slint::VecModel<f32>> = Rc::new(slint::VecModel::from(bars));
+                ui.set_visualizer_bars(slint::ModelRc::from(model));
+            });
+        }
     });
 
     capy_player::visualizer::start();
@@ -129,11 +159,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     let last_rendered_position = Rc::new(RefCell::new(0.0f32));
     let playback_motion = Rc::new(RefCell::new(animation::PlaybackMotion::default()));
 
-    let ui_weak_timer = ui.as_weak();
+    let spell_weaks = spells.iter().map(|s| s.as_weak()).collect::<Vec<_>>();
     let interp_clone = interp_state.clone();
     let last_pos_clone = last_rendered_position.clone();
     let server_state_for_timer = server_state.clone();
     let motion_clone = playback_motion.clone();
+
+    for weak in &spell_weaks {
+        if let Some(ui) = weak.upgrade() {
+            setup_callbacks(&ui, server_state.clone());
+        }
+    }
 
     let timer = slint::Timer::default();
     timer.start(
@@ -141,71 +177,75 @@ fn main() -> Result<(), Box<dyn Error>> {
         // 30 fps
         std::time::Duration::from_millis(33), // TODO: test different fps
         move || {
-            if let Some(ui) = ui_weak_timer.upgrade() {
-                capy_player::visualizer::set_active(ui.get_visualizer_active());
+            let mut latest_data = None;
+            while let Ok(data) = rx.try_recv() {
+                latest_data = Some(data);
+            }
+            if let Some(data) = latest_data {
+                log::info!(
+                    "Processing update for: title='{}', artist='{}'",
+                    data.title,
+                    data.artist
+                );
+                let title_hash = hash_string(data.title.as_str());
 
-                let mut latest_data = None;
-                while let Ok(data) = rx.try_recv() {
-                    latest_data = Some(data);
+                {
+                    let mut state = server_state_for_timer.borrow_mut();
+                    state.position_secs = data.position_secs;
+                    state.is_playing = data.is_playing;
+                    state.length_secs = data.length_secs;
+                    state.title_hash = title_hash;
+                    state.updated_at = Some(Instant::now());
+                    state.has_media = data.has_media;
                 }
 
-                if let Some(data) = latest_data {
-                    log::info!(
-                        "Processing update for: title='{}', artist='{}'",
-                        data.title,
-                        data.artist
-                    );
-                    let title_hash = hash_string(data.title.as_str());
+                let album_art = image_cache::load_image_cached(
+                    data.album_art_path.as_str(),
+                    data.has_media,
+                    false,
+                );
+                let blurred_art = image_cache::load_image_cached(
+                    data.blurred_art_path.as_str(),
+                    data.has_media,
+                    true,
+                );
 
-                    {
-                        let mut state = server_state_for_timer.borrow_mut();
-                        state.position_secs = data.position_secs;
-                        state.is_playing = data.is_playing;
-                        state.length_secs = data.length_secs;
-                        state.title_hash = title_hash;
-                        state.updated_at = Some(Instant::now());
-                        state.has_media = data.has_media;
+                let dominant_color = slint::Color::from_rgb_u8(
+                    data.palette.dominant.0,
+                    data.palette.dominant.1,
+                    data.palette.dominant.2,
+                );
+                let on_dominant_color = slint::Color::from_rgb_u8(
+                    data.palette.on_dominant.0,
+                    data.palette.on_dominant.1,
+                    data.palette.on_dominant.2,
+                );
+
+                let media_data = MediaData {
+                    title: SharedString::from(data.title),
+                    artist: SharedString::from(data.artist),
+                    album: SharedString::from(data.album),
+                    album_art,
+                    blurred_art,
+                    length_secs: data.length_secs,
+                    position_secs: data.position_secs,
+                    is_playing: data.is_playing,
+                    has_media: data.has_media,
+                    text_color: on_dominant_color,
+                    dominant_color,
+                    on_dominant_color,
+                    is_dark: data.palette.is_dark,
+                };
+                if let Some(ui_weak) = spell_weaks.first() {
+                    if let Some(ui) = ui_weak.upgrade() {
+                        capy_player::visualizer::set_active(ui.get_visualizer_active());
                     }
+                }
 
-                    let album_art = image_cache::load_image_cached(
-                        data.album_art_path.as_str(),
-                        data.has_media,
-                        false,
-                    );
-                    let blurred_art = image_cache::load_image_cached(
-                        data.blurred_art_path.as_str(),
-                        data.has_media,
-                        true,
-                    );
-
-                    let dominant_color = slint::Color::from_rgb_u8(
-                        data.palette.dominant.0,
-                        data.palette.dominant.1,
-                        data.palette.dominant.2,
-                    );
-                    let on_dominant_color = slint::Color::from_rgb_u8(
-                        data.palette.on_dominant.0,
-                        data.palette.on_dominant.1,
-                        data.palette.on_dominant.2,
-                    );
-
-                    let media_data = MediaData {
-                        title: SharedString::from(data.title),
-                        artist: SharedString::from(data.artist),
-                        album: SharedString::from(data.album),
-                        album_art,
-                        blurred_art,
-                        length_secs: data.length_secs,
-                        position_secs: data.position_secs,
-                        is_playing: data.is_playing,
-                        has_media: data.has_media,
-                        text_color: on_dominant_color,
-                        dominant_color,
-                        on_dominant_color,
-                        is_dark: data.palette.is_dark,
-                    };
-                    ui.set_media_data(media_data);
-                    ui.set_position_secs(data.position_secs);
+                for weak in &spell_weaks {
+                    if let Some(ui) = weak.upgrade() {
+                        ui.set_media_data(media_data.clone());
+                    }
                 }
 
                 let server = server_state_for_timer.borrow().clone();
@@ -216,11 +256,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let is_moving = motion.is_moving();
                     (frame, is_moving || was_moving)
                 };
-
-                if should_update_angle {
-                    ui.set_vinyl_angle(frame.angle_deg);
-                    ui.set_animation_phase(frame.phase);
-                }
 
                 if !server.has_media {
                     return;
@@ -254,9 +289,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let last_pos = *last_pos_clone.borrow();
                 let position_changed = (new_position - last_pos).abs() > 0.25;
 
-                if position_changed {
-                    *last_pos_clone.borrow_mut() = new_position;
-                    ui.set_position_secs(new_position);
+                for weak in &spell_weaks {
+                    if let Some(ui) = weak.upgrade() {
+                        ui.set_position_secs(new_position);
+
+                        if should_update_angle {
+                            ui.set_vinyl_angle(frame.angle_deg);
+                            ui.set_animation_phase(frame.phase);
+                        }
+
+                        if position_changed {
+                            *last_pos_clone.borrow_mut() = new_position;
+                            ui.set_position_secs(new_position);
+                        }
+                    }
                 }
             }
         },
@@ -264,6 +310,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     // why: prevent timer from being dropped at end of main
     std::mem::forget(timer);
 
+    let mut windows = Vec::new();
+    let mut _ui_handles = Vec::new();
+    for spell in spells {
+        let (ui, way) = spell.parts();
+        _ui_handles.push(ui);
+        windows.push(Box::new(way) as Box<dyn spell_framework::SpellAssociatedNew>);
+    }
+    spell_framework::cast_spells_new(windows)
+}
+
+fn setup_callbacks(ui: &CapySpellPlayer, server_state: Rc<RefCell<ServerState>>) {
     ui.on_play_pause(|| {
         capy_player::mpris::play_pause();
     });
@@ -284,6 +341,4 @@ fn main() -> Result<(), Box<dyn Error>> {
             capy_player::mpris::seek(position_us);
         }
     });
-
-    cast_spell!(ui)
 }
