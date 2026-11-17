@@ -5,6 +5,7 @@ use std::time::Instant;
 pub struct MotionFrame {
     pub angle_deg: f32,
     pub phase: f32,
+    #[allow(dead_code)]
     pub activity: f32,
 }
 

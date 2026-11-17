@@ -6,7 +6,7 @@ use spell_framework::{
     self,
     layer_properties::{LayerAnchor, LayerType, WindowConf},
 };
-use state::{hash_string, InterpolationState, ServerState};
+use state::{InterpolationState, ServerState, hash_string};
 use std::{cell::RefCell, error::Error, rc::Rc, sync::mpsc, time::Instant};
 use ui::{apply_skin_and_layout, setup_callbacks};
 
@@ -196,10 +196,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
 
-            if let Some(ui_weak) = weaks_timer.first() {
-                if let Some(ui) = ui_weak.upgrade() {
-                    capy_player::visualizer::set_active(ui.get_visualizer_active());
-                }
+            if let Some(ui_weak) = weaks_timer.first()
+                && let Some(ui) = ui_weak.upgrade()
+            {
+                capy_player::visualizer::set_active(ui.get_visualizer_active());
             }
 
             let server = server_state_for_timer.borrow().clone();
