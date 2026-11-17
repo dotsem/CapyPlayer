@@ -7984,23 +7984,3 @@ dependencies = [
  "syn 2.0.117",
  "winnow 1.0.3",
 ]
-
-[[patch.unused]]
-name = "i-slint-core"
-version = "1.17.0"
-source = "git+https://github.com/slint-ui/slint#24318cebc2b3feed4f7187e237915f52715ce285"
-
-[[patch.unused]]
-name = "i-slint-renderer-skia"
-version = "1.17.0"
-source = "git+https://github.com/slint-ui/slint#24318cebc2b3feed4f7187e237915f52715ce285"
-
-[[patch.unused]]
-name = "slint"
-version = "1.17.0"
-source = "git+https://github.com/slint-ui/slint#24318cebc2b3feed4f7187e237915f52715ce285"
-
-[[patch.unused]]
-name = "slint-build"
-version = "1.17.0"
-source = "git+https://github.com/slint-ui/slint#24318cebc2b3feed4f7187e237915f52715ce285"

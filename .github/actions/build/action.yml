@@ -1,5 +1,10 @@
 name: Build
-description: Install system deps + Rust toolchain and build the release binary
+description: Install system deps + Rust toolchain and build the binary
+
+inputs:
+  profile:
+    description: Cargo profile to build with (dev or release)
+    default: release
 
 runs:
   using: composite
@@ -26,6 +31,9 @@ runs:
         components: clippy
 
     - uses: Swatinem/rust-cache@2201cc584a476d1b508be977bbe4b7d1c7a52e9c # v2.9.3
+      with:
+        key: ${{ inputs.profile }}
+        cache-on-failure: true
 
     - shell: bash
-      run: cargo build --release --locked
+      run: cargo build --profile ${{ inputs.profile }} --locked
