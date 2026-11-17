@@ -24,7 +24,7 @@ runs:
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends \
           pkg-config libwayland-dev libxkbcommon-dev libfontconfig1-dev libfreetype-dev \
-          libdbus-1-dev libfftw3-dev libpipewire-0.3-dev libpulse-dev
+          libdbus-1-dev libfftw3-dev libpipewire-0.3-dev libpulse-dev libpam0g-dev libxcb1-dev
 
     - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
       with:
