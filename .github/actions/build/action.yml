@@ -1,0 +1,31 @@
+name: Build
+description: Install system deps + Rust toolchain and build the release binary
+
+runs:
+  using: composite
+  steps:
+    # still waiting on a PR on spell upstream
+    # for now just clone my fork and build from there
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        repository: dotsem/Spell
+        ref: "fix/set_size-function-doesn't-update-slint-&-wayland-window-size"
+        path: .spell
+    - shell: bash
+      run: mv .spell ../Spell
+
+    - shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          pkg-config libwayland-dev libxkbcommon-dev libfontconfig1-dev libfreetype-dev \
+          libdbus-1-dev libfftw3-dev libpipewire-0.3-dev libpulse-dev
+
+    - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
+      with:
+        components: clippy
+
+    - uses: Swatinem/rust-cache@2201cc584a476d1b508be977bbe4b7d1c7a52e9c # v2.9.3
+
+    - shell: bash
+      run: cargo build --release --locked
