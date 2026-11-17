@@ -5,7 +5,7 @@ CapyPlayer is a customizable desktop media widget for Wayland compositors, built
 > [!WARNING]
 > CapyPlayer is currently in an early development stage and depends on an out-of-tree fork of the `spell-framework`. APIs, architecture, and configuration structures are actively evolving.
 
---- 
+---
 
 ## Available Skins
 
@@ -191,11 +191,16 @@ Skins are auto-registered by the build system. Adding a new skin does not requir
    cargo run
    ```
 
-   (Optional) If using the Slint LSP or live preview, regenerate the Slint definitions with 
+   (Optional) For hot reload, run with live preview:
+   ```bash
+   SLINT_LIVE_PREVIEW=1 cargo run --features live-preview
+   ```
+
+   (Optional) If using the Slint LSP or live preview, regenerate the Slint definitions with
    ```bash
    cargo run --bin generate-skins
    ```
-   
+
 
 ---
 

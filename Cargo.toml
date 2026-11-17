@@ -13,8 +13,11 @@ path = "src/main.rs"
 name = "generate-skins"
 path = "src/bin/generate_skins.rs"
 
+[features]
+live-preview = ["slint/live-preview"]
+
 [dependencies]
-slint = { version = "1.17.1", features = ["live-preview", "renderer-skia"] }
+slint = { version = "1.17.1", features = ["renderer-skia"] }
 # spell-framework = "1.0.6"
 spell-framework = { path = "../Spell/spell-framework" }
 capy-player = { path = "crates/capy-player" }
@@ -29,3 +32,8 @@ display-info = "0.5.10"
 slint-build = "1.17.1"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1
